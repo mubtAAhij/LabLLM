@@ -80,7 +80,11 @@ final class ModelStore: ObservableObject {
         guard load else { return }
         reload()
         migrateLegacyCheckpointsIfNeeded()
-        if models.isEmpty { _ = create(named: String(localized: "core.model-workspace.default-name.my-first-model", defaultValue: "My First Model", comment: "Default name for the initial model workspace")) }
+        if models.isEmpty { _ = create(named: String(
+            localized: "core.model-workspace.default-name.my-first-model",
+            defaultValue: "My First Model",
+            comment: "Default name for the initial model workspace"
+        )) }
         let stored = UserDefaults.standard.string(forKey: activeKey).flatMap(UUID.init(uuidString:))
         activeID = models.contains(where: { $0.id == stored }) ? stored : models.first?.id
         syncCheckpointDirectory()
@@ -103,7 +107,11 @@ final class ModelStore: ObservableObject {
 
     var active: ModelWorkspace? { models.first { $0.id == activeID } }
 
-    var activeName: String { active?.name ?? String(localized: "core.model-workspace.selection.no-model", defaultValue: "No model", comment: "Placeholder title when no model is currently selected") }
+    var activeName: String { active?.name ?? String(
+        localized: "core.model-workspace.selection.no-model",
+        defaultValue: "No model",
+        comment: "Placeholder title when no model is currently selected"
+    ) }
 
     func checkpointCount(for id: UUID) -> Int {
         let dir = directory(for: id).appendingPathComponent("Checkpoints", isDirectory: true)
@@ -142,7 +150,11 @@ final class ModelStore: ObservableObject {
                                                     withIntermediateDirectories: true)
             try encoder.encode(workspace).write(to: folder.appendingPathComponent("model.json"), options: .atomic)
         } catch {
-            lastError = String(format: String(localized: "core.model-workspace.error.save-failed", defaultValue: "Couldn't save model '%@': %@", comment: "Error message when saving a model workspace fails"), "\(workspace.name)", "\(error.localizedDescription)")
+            lastError = String(format: String(
+                localized: "core.model-workspace.error.save-failed",
+                defaultValue: "Couldn't save model '%@': %@",
+                comment: "Error message when saving a model workspace fails"
+            ), "\(workspace.name)", "\(error.localizedDescription)")
         }
     }
 
@@ -176,7 +188,11 @@ final class ModelStore: ObservableObject {
         guard let source = models.first(where: { $0.id == id }) else { return nil }
         var copy = source
         copy.id = UUID()
-        copy.name = uniqueName(String(format: String(localized: "core.model-workspace.duplicate-name.template", defaultValue: "%@ copy", comment: "Template for naming a duplicated model workspace"), "\(source.name)"))
+        copy.name = uniqueName(String(format: String(
+            localized: "core.model-workspace.duplicate-name.template",
+            defaultValue: "%@ copy",
+            comment: "Template for naming a duplicated model workspace"
+        ), "\(source.name)"))
         copy.createdAt = Date()
         models.append(copy)
         persist(copy)
@@ -193,7 +209,11 @@ final class ModelStore: ObservableObject {
 
     func delete(_ id: UUID) {
         guard models.count > 1 else {
-            lastError = String(localized: "core.model-workspace.validation.keep-at-least-one-model", defaultValue: "Keep at least one model. Create another model before deleting this one.", comment: "Validation message preventing deletion of the last remaining model")
+            lastError = String(
+                localized: "core.model-workspace.validation.keep-at-least-one-model",
+                defaultValue: "Keep at least one model. Create another model before deleting this one.",
+                comment: "Validation message preventing deletion of the last remaining model"
+            )
             return
         }
         try? FileManager.default.removeItem(at: directory(for: id))
@@ -202,7 +222,11 @@ final class ModelStore: ObservableObject {
     }
 
     private func uniqueName(_ proposed: String, excluding id: UUID? = nil) -> String {
-        let base = proposed.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? String(localized: "core.model-workspace.default-name.untitled-model", defaultValue: "Untitled model", comment: "Fallback model name when a new model has no explicit title") : proposed
+        let base = proposed.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? String(
+            localized: "core.model-workspace.default-name.untitled-model",
+            defaultValue: "Untitled model",
+            comment: "Fallback model name when a new model has no explicit title"
+        ) : proposed
         let taken = models.filter { $0.id != id }.map(\.name)
         guard taken.contains(base) else { return base }
         var index = 2
@@ -227,7 +251,11 @@ final class ModelStore: ObservableObject {
         let contents = (try? FileManager.default.contentsOfDirectory(at: legacy, includingPropertiesForKeys: nil)) ?? []
         let runs = contents.filter { $0.hasDirectoryPath }
         guard !runs.isEmpty else { return }
-        let target = models.first ?? create(named: String(localized: "core.model-workspace.template-name.my-first-model", defaultValue: "My First Model", comment: "Template model name used when creating the first model entry"))
+        let target = models.first ?? create(named: String(
+            localized: "core.model-workspace.template-name.my-first-model",
+            defaultValue: "My First Model",
+            comment: "Template model name used when creating the first model entry"
+        ))
         let destination = directory(for: target.id).appendingPathComponent("Checkpoints", isDirectory: true)
         try? FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
         for run in runs {
