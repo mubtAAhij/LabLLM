@@ -18,11 +18,11 @@ struct InstalledDatasetsPanel: View {
     private var installed: [InstalledDataset] { library.datasets(of: kind) }
 
     var body: some View {
-        GroupBox(kind == .corpus ? "Installed pre-training data" : "Installed fine-tuning data") {
+        GroupBox(kind == .corpus ? String(localized: "installed-datasets.panel.pretraining.title", defaultValue: "Installed pre-training data", comment: "Panel title for installed pre-training datasets") : String(localized: "installed-datasets.panel.finetuning.title", defaultValue: "Installed fine-tuning data", comment: "Panel title for installed fine-tuning datasets")) {
             VStack(alignment: .leading, spacing: 10) {
                 header
                 if installed.isEmpty {
-                    Text("Nothing installed yet. Importing a dataset writes it to disk, so it is still here next time you open LabLLM.")
+                    Text(String(localized: "installed-datasets.empty-state.message", defaultValue: "Nothing installed yet. Importing a dataset writes it to disk, so it is still here next time you open LabLLM.", comment: "Empty state message when no datasets are installed"))
                         .font(.callout).foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
@@ -30,34 +30,34 @@ struct InstalledDatasetsPanel: View {
                 }
             }.padding(8)
         }
-        .alert("Rename dataset", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
-            TextField("Dataset name", text: $renameValue)
-            Button("Rename") {
+        .alert(String(localized: "installed-datasets.rename-dialog.title", defaultValue: "Rename dataset", comment: "Rename dataset confirmation dialog title"), isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
+            TextField(String(localized: "installed-datasets.rename-dialog.name-field", defaultValue: "Dataset name", comment: "Label for dataset name input field"), text: $renameValue)
+            Button(String(localized: "installed-datasets.rename-dialog.confirm", defaultValue: "Rename", comment: "Rename action button title")) {
                 if let dataset = renaming { library.rename(dataset, to: renameValue) }
                 renaming = nil
             }
-            Button("Cancel", role: .cancel) { renaming = nil }
+            Button(String(localized: "installed-datasets.dialog.cancel", defaultValue: "Cancel", comment: "Cancel button title in dataset dialogs"), role: .cancel) { renaming = nil }
         }
-        .alert("Delete \(deleting?.name ?? "dataset")?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {
-            Button("Delete", role: .destructive) {
+        .alert(String(format: String(localized: "installed-datasets.delete-dialog.title", defaultValue: "Delete %@?", comment: "Delete dataset dialog title with dataset name"), "\(deleting?.name ?? String(localized: "installed-datasets.delete-dialog.fallback-name", defaultValue: "dataset", comment: "Fallback dataset name used in delete dialog when dataset name is unavailable"))"), isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {
+            Button(String(localized: "installed-datasets.delete-dialog.confirm", defaultValue: "Delete", comment: "Delete action button title"), role: .destructive) {
                 if let dataset = deleting { state.uninstall(dataset) }
                 deleting = nil
             }
-            Button("Cancel", role: .cancel) { deleting = nil }
+            Button(String(localized: "installed-datasets.dialog.cancel", defaultValue: "Cancel", comment: "Cancel button title in dataset dialogs"), role: .cancel) { deleting = nil }
         } message: {
-            Text("This removes the file from disk and from every model's training mix.")
+            Text(String(localized: "installed-datasets.delete-dialog.message", defaultValue: "This removes the file from disk and from every model's training mix.", comment: "Delete dataset warning message"))
         }
     }
 
     private var header: some View {
         HStack {
-            Text("\(installed.count) installed · \(ByteCountFormatter.string(fromByteCount: Int64(installed.reduce(0) { $0 + $1.bytes }), countStyle: .file)) on disk")
+            Text(String(format: String(localized: "installed-datasets.summary.count-and-size", defaultValue: "%d installed · %@ on disk", comment: "Summary showing installed dataset count and disk usage"), installed.count, "\(ByteCountFormatter.string(fromByteCount: Int64(installed.reduce(0) { $0 + $1.bytes }), countStyle: .file))"))
                 .font(.caption).foregroundStyle(.secondary).monospacedDigit()
             Spacer()
-            Button("Open library folder") {
+            Button(String(localized: "installed-datasets.actions.open-library-folder", defaultValue: "Open library folder", comment: "Button title to open dataset library folder")) {
                 NSWorkspace.shared.activateFileViewerSelecting([DatasetLibrary.rootDirectory()])
             }.buttonStyle(WorkbenchSecondaryButtonStyle())
-            Button("Set up the mix in Training") {
+            Button(String(localized: "installed-datasets.actions.setup-mix-in-training", defaultValue: "Set up the mix in Training", comment: "Button title to configure dataset mix in training")) {
                 NotificationCenter.default.post(name: .navigateToSection, object: NavSection.training.rawValue)
             }.buttonStyle(WorkbenchSecondaryButtonStyle())
         }
@@ -70,7 +70,7 @@ struct InstalledDatasetsPanel: View {
                 Image(systemName: dataset.kind.icon).foregroundStyle(.tint)
                 Text(dataset.name).font(.callout.weight(.semibold)).lineLimit(1)
                 if inMix {
-                    Text("IN MIX").font(.caption2.bold()).padding(.horizontal, 6).padding(.vertical, 2)
+                    Text(String(localized: "installed-datasets.badge.in-mix", defaultValue: "IN MIX", comment: "Badge indicating dataset is in active training mix")).font(.caption2.bold()).padding(.horizontal, 6).padding(.vertical, 2)
                         .background(Color.green.opacity(0.18), in: Capsule()).foregroundStyle(.green)
                 }
                 Spacer()
@@ -81,19 +81,19 @@ struct InstalledDatasetsPanel: View {
                 Text(dataset.summary).font(.caption.monospacedDigit()).foregroundStyle(.secondary)
                 Spacer()
                 if inMix {
-                    Button("Remove from \(models.activeName)") { state.removeFromMix(dataset.id, kind: dataset.kind) }
+                    Button(String(format: String(localized: "installed-datasets.menu.remove-from-model", defaultValue: "Remove from %@", comment: "Context menu action to remove dataset from active model"), "\(models.activeName)")) { state.removeFromMix(dataset.id, kind: dataset.kind) }
                         .buttonStyle(WorkbenchSecondaryButtonStyle())
                 } else {
-                    Button("Add to \(models.activeName)") { state.addToMix(dataset) }
+                    Button(String(format: String(localized: "installed-datasets.menu.add-to-model", defaultValue: "Add to %@", comment: "Context menu action to add dataset to active model"), "\(models.activeName)")) { state.addToMix(dataset) }
                         .buttonStyle(WorkbenchPrimaryButtonStyle())
                 }
                 Menu {
-                    Button("Rename…") { renaming = dataset; renameValue = dataset.name }
-                    Button("Reveal in Finder") {
+                    Button(String(localized: "installed-datasets.menu.rename", defaultValue: "Rename…", comment: "Context menu action to rename dataset")) { renaming = dataset; renameValue = dataset.name }
+                    Button(String(localized: "installed-datasets.menu.reveal-in-finder", defaultValue: "Reveal in Finder", comment: "Context menu action to reveal dataset file in Finder")) {
                         NSWorkspace.shared.activateFileViewerSelecting([library.fileURL(for: dataset)])
                     }
                     Divider()
-                    Button("Delete from disk…", role: .destructive) { deleting = dataset }
+                    Button(String(localized: "installed-datasets.menu.delete-from-disk", defaultValue: "Delete from disk…", comment: "Context menu action to delete dataset file from disk"), role: .destructive) { deleting = dataset }
                 } label: { Image(systemName: "ellipsis.circle") }
                     .menuStyle(.borderlessButton).frame(width: 34)
             }
