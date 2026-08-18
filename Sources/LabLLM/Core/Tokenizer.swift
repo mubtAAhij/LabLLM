@@ -10,7 +10,19 @@ enum TokenizerKind: String, Codable, CaseIterable, Identifiable {
     case bpe
     var id: String { rawValue }
     var label: String {
-        switch self { case .character: return String(localized: "core.tokenizer.kind.character", defaultValue: "Character", comment: "Tokenizer mode label for character-based tokenization"); case .byte: return String(localized: "core.tokenizer.kind.byte-level-utf8", defaultValue: "Byte-level (UTF-8)", comment: "Tokenizer mode label for byte-level UTF-8 tokenization"); case .bpe: return String(localized: "core.tokenizer.kind.bpe-trained", defaultValue: "BPE (trained)", comment: "Tokenizer mode label for trained BPE tokenization") }
+        switch self { case .character: return String(
+            localized: "core.tokenizer.kind.character",
+            defaultValue: "Character",
+            comment: "Tokenizer mode label for character-based tokenization"
+        ); case .byte: return String(
+            localized: "core.tokenizer.kind.byte-level-utf8",
+            defaultValue: "Byte-level (UTF-8)",
+            comment: "Tokenizer mode label for byte-level UTF-8 tokenization"
+        ); case .bpe: return String(
+            localized: "core.tokenizer.kind.bpe-trained",
+            defaultValue: "BPE (trained)",
+            comment: "Tokenizer mode label for trained BPE tokenization"
+        ) }
     }
 }
 
