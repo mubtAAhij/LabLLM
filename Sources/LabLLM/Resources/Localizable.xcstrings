@@ -8021,6 +8021,12 @@
             "state": "translated",
             "value": "%d/%d"
           }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d/%d"
+          }
         }
       }
     },
@@ -8047,6 +8053,12 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d%%"
+          }
+        },
+        "es-419": {
           "stringUnit": {
             "state": "translated",
             "value": "%d%%"
@@ -8639,6 +8651,12 @@
             "state": "translated",
             "value": "Merged %d corpora"
           }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se fusionaron %d corpus"
+          }
         }
       }
     },
@@ -8669,6 +8687,12 @@
             "state": "translated",
             "value": "Merged %d datasets"
           }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d datasets fusionados"
+          }
         }
       }
     },
@@ -8680,6 +8704,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%d installed corpus file(s) couldn't be read and were skipped."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d archivos de corpus instalados no se pudieron leer y se omitieron."
           }
         }
       }
@@ -9341,6 +9371,12 @@
             "state": "translated",
             "value": "0%% · %@"
           }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0%% · %@"
+          }
         }
       }
     },
@@ -9799,6 +9835,12 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d-bit…"
+          }
+        },
+        "es-419": {
           "stringUnit": {
             "state": "translated",
             "value": "%d-bit…"
@@ -10390,6 +10432,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Restored %@ run at step %d"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejecución %@ restaurada en el paso %d"
           }
         }
       }
@@ -16540,6 +16588,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%d installed · %@ on disk"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d instalados · %@ en el disco"
           }
         }
       }
