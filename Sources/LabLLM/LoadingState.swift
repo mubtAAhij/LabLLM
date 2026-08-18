@@ -31,7 +31,11 @@ struct LoadingOverlay: View {
                 VStack(spacing: 14) {
                     if let p = state.progress {
                         ProgressView(value: p).frame(width: 220)
-                        Text(String(format: String(localized: "loading-state.progress.percent", defaultValue: "%d%%", comment: "Progress label showing rounded percent complete"), Int((p * 100).rounded())))
+                        Text(String(format: String(
+                            localized: "loading-state.progress.percent",
+                            defaultValue: "%d%%",
+                            comment: "Progress label showing rounded percent complete"
+                        ), Int((p * 100).rounded())))
                             .font(.caption.monospacedDigit().weight(.semibold))
                             .foregroundStyle(.secondary)
                     } else {
