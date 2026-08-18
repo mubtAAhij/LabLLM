@@ -8,9 +8,9 @@ enum RunMode: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .pretrain: return "Pretrain"
-        case .sft: return "Fine-tune (chat)"
-        case .dpo: return "DPO"
+        case .pretrain: return String(localized: "core.training-session.method.pretrain", defaultValue: "Pretrain", comment: "Training method display name for pretraining mode")
+        case .sft: return String(localized: "core.training-session.method.fine-tune-chat", defaultValue: "Fine-tune (chat)", comment: "Training method display name for chat fine-tuning mode")
+        case .dpo: return String(localized: "core.training-session.method.dpo", defaultValue: "DPO", comment: "Training method display name for DPO mode")
         }
     }
 }
@@ -51,9 +51,9 @@ struct TrainingSession: Codable, Equatable {
     var lastCheckpointURL: URL? { lastCheckpointPath.map { URL(fileURLWithPath: $0) } }
 
     var summary: String {
-        guard step > 0 else { return "No run yet" }
-        let state = completed ? "finished" : "stopped"
-        return "\(method) · step \(step.formatted())/\(maxSteps.formatted()) · loss \(String(format: "%.3f", trainLoss)) · \(state)"
+        guard step > 0 else { return String(localized: "core.training-session.status.no-run-yet", defaultValue: "No run yet", comment: "Status text when no training run has started") }
+        let state = completed ? String(localized: "core.training-session.status.finished", defaultValue: "finished", comment: "Short lowercase status text for a finished training run") : String(localized: "core.training-session.status.stopped", defaultValue: "stopped", comment: "Short lowercase status text for a stopped training run")
+        return String(format: String(localized: "core.training-session.progress.summary", defaultValue: "%@ · step %@/%@ · loss %.3f · %@", comment: "Training run summary with method, current and max steps, loss, and status"), "\(method)", "\(step.formatted())", "\(maxSteps.formatted())", String(format: "%.3f", trainLoss), "\(state)")
     }
 }
 
