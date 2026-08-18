@@ -28,7 +28,11 @@ final class AppState: ObservableObject {
     @Published var tokenizer: Tokenizer?
 
     @Published var dpoExamples: [PreferenceExample] = []
-    @Published var dpoDatasetName = String(localized: "app-state.preferences.none-selected", defaultValue: "No preference data selected", comment: "Status text when no preference dataset is selected")
+    @Published var dpoDatasetName = String(
+        localized: "app-state.preferences.none-selected",
+        defaultValue: "No preference data selected",
+        comment: "Status text when no preference dataset is selected"
+    )
     @Published var datasetImportError: String?
     @Published var pendingContinuation: (url: URL, meta: Checkpoint.Meta)?
 
@@ -243,18 +247,34 @@ final class AppState: ObservableObject {
     var corpusName: String {
         let selected = selectedCorpusDatasets
         switch selected.count {
-        case 0: return String(localized: "app-state.corpus.none-selected", defaultValue: "No corpus selected", comment: "Status text when no corpus is selected")
+        case 0: return String(
+            localized: "app-state.corpus.none-selected",
+            defaultValue: "No corpus selected",
+            comment: "Status text when no corpus is selected"
+        )
         case 1: return selected[0].dataset.name
-        default: return String(format: String(localized: "app-state.corpus.merged-count", defaultValue: "Merged %d corpora", comment: "Status text showing merged corpus count"), selected.count)
+        default: return String(format: String(
+            localized: "app-state.corpus.merged-count",
+            defaultValue: "Merged %d corpora",
+            comment: "Status text showing merged corpus count"
+        ), selected.count)
         }
     }
 
     var sftDatasetName: String {
         let selected = selectedFineTuneDatasets
         switch selected.count {
-        case 0: return String(localized: "app-state.finetuning.none-selected", defaultValue: "No fine-tuning data selected", comment: "Status text when no fine-tuning dataset is selected")
+        case 0: return String(
+            localized: "app-state.finetuning.none-selected",
+            defaultValue: "No fine-tuning data selected",
+            comment: "Status text when no fine-tuning dataset is selected"
+        )
         case 1: return selected[0].dataset.name
-        default: return String(format: String(localized: "app-state.finetuning.merged-count", defaultValue: "Merged %d datasets", comment: "Status text showing merged fine-tuning dataset count"), selected.count)
+        default: return String(format: String(
+            localized: "app-state.finetuning.merged-count",
+            defaultValue: "Merged %d datasets",
+            comment: "Status text showing merged fine-tuning dataset count"
+        ), selected.count)
         }
     }
 
@@ -392,7 +412,11 @@ final class AppState: ObservableObject {
                 self.isLoadingMix = false
                 self.tokenizer = nil
                 if !failures.isEmpty {
-                    self.datasetImportError = String(format: String(localized: "app-state.corpus.read-failures", defaultValue: "%d installed corpus file(s) couldn't be read and were skipped.", comment: "Warning text showing unreadable installed corpus file count"), failures.count)
+                    self.datasetImportError = String(format: String(
+                        localized: "app-state.corpus.read-failures",
+                        defaultValue: "%d installed corpus file(s) couldn't be read and were skipped.",
+                        comment: "Warning text showing unreadable installed corpus file count"
+                    ), failures.count)
                 }
                 completion?()
             }
@@ -449,7 +473,11 @@ final class AppState: ObservableObject {
     func buildBPETokenizer() {
         prepareCorpus { [weak self] in
             guard let self else { return }
-            self.loading.begin(String(localized: "app-state.tokenizer.training-bpe", defaultValue: "Training BPE tokenizer", comment: "Progress title while training BPE tokenizer"), detail: "0%")
+            self.loading.begin(String(
+                localized: "app-state.tokenizer.training-bpe",
+                defaultValue: "Training BPE tokenizer",
+                comment: "Progress title while training BPE tokenizer"
+            ), detail: "0%")
             let text = self.corpus
             let target = self.bpeTargetVocab
             let loading = self.loading
@@ -469,43 +497,83 @@ final class AppState: ObservableObject {
     // MARK: - Installing data
 
     func loadCorpus(from url: URL) {
-        loading.begin(String(localized: "app-state.corpus.loading-title", defaultValue: "Loading corpus", comment: "Progress title while loading corpus data"), detail: String(format: String(localized: "app-state.corpus.loading-initial-progress", defaultValue: "0%% · %@", comment: "Initial corpus loading progress with filename"), "\(url.lastPathComponent)"))
+        loading.begin(String(
+            localized: "app-state.corpus.loading-title",
+            defaultValue: "Loading corpus",
+            comment: "Progress title while loading corpus data"
+        ), detail: String(format: String(
+            localized: "app-state.corpus.loading-initial-progress",
+            defaultValue: "0%% · %@",
+            comment: "Initial corpus loading progress with filename"
+        ), "\(url.lastPathComponent)"))
         let loading = loading
         DispatchQueue.global().async {
             let text: String
             do {
                 text = try Self.readUTF8Text(from: url, progress: { completed, total in
-                    loading.update(detail: String(format: String(localized: "app-state.corpus.loading-progress", defaultValue: "%@ · %@ of %@", comment: "Corpus loading progress with percent and byte counts"), "\(Self.percent(completed, total))", "\(Self.formatBytes(completed))", "\(Self.formatBytes(total))"), progress: Double(completed) / Double(max(total, 1)))
+                    loading.update(detail: String(format: String(
+                        localized: "app-state.corpus.loading-progress",
+                        defaultValue: "%@ · %@ of %@",
+                        comment: "Corpus loading progress with percent and byte counts"
+                    ), "\(Self.percent(completed, total))", "\(Self.formatBytes(completed))", "\(Self.formatBytes(total))"), progress: Double(completed) / Double(max(total, 1)))
                 })
             } catch {
                 text = ""
             }
             DispatchQueue.main.async {
-                self.installCorpus(name: url.lastPathComponent, origin: String(localized: "app-state.corpus.source.local-text", defaultValue: "Local text", comment: "Source label for local text corpus input"), text: text)
+                self.installCorpus(name: url.lastPathComponent, origin: String(
+                    localized: "app-state.corpus.source.local-text",
+                    defaultValue: "Local text",
+                    comment: "Source label for local text corpus input"
+                ), text: text)
                 self.loading.end()
             }
         }
     }
 
     func downloadHFCorpus(_ dataset: HFHubDataset, file: HFHubFile) {
-        dataImport.begin(title: String(localized: "app-state.download.pretraining-title", defaultValue: "Downloading pre-training data", comment: "Progress title while downloading pre-training dataset"), detail: dataset.id, totalRows: max(1, file.size ?? 1), queuedTitles: [], unit: String(localized: "app-state.download.unit.bytes", defaultValue: "bytes", comment: "Unit label indicating byte-based download progress"))
+        dataImport.begin(title: String(
+            localized: "app-state.download.pretraining-title",
+            defaultValue: "Downloading pre-training data",
+            comment: "Progress title while downloading pre-training dataset"
+        ), detail: dataset.id, totalRows: max(1, file.size ?? 1), queuedTitles: [], unit: String(
+            localized: "app-state.download.unit.bytes",
+            defaultValue: "bytes",
+            comment: "Unit label indicating byte-based download progress"
+        ))
         activeDataImportTask = Task { [weak self] in
             guard let self else { return }
             do {
                 let text = try await HFDownloader.download(repo: dataset.id, filePath: file.path) { completed, total in
                     Task { @MainActor [weak self] in
                         self?.dataImport.update(completedRows: Int(min(completed, Int64(Int.max))),
-                                                detail: String(format: String(localized: "app-state.download.progress-from-dataset", defaultValue: "%@ of %@ from %@", comment: "Download progress text with completed bytes, total bytes or fallback, and dataset name"), "\(Self.formatBytes(completed))", "\(total.map(Self.formatBytes) ?? String(localized: "app-state.download.unknown-size", defaultValue: "unknown size", comment: "Fallback text when total download size is unavailable"))", "\(dataset.displayName)"))
+                                                detail: String(format: String(
+                                                    localized: "app-state.download.progress-from-dataset",
+                                                    defaultValue: "%@ of %@ from %@",
+                                                    comment: "Download progress text with completed bytes, total bytes or fallback, and dataset name"
+                                                ), "\(Self.formatBytes(completed))", "\(total.map(Self.formatBytes) ?? String(
+                                                    localized: "app-state.download.unknown-size",
+                                                    defaultValue: "unknown size",
+                                                    comment: "Fallback text when total download size is unavailable"
+                                                ))", "\(dataset.displayName)"))
                         self?.dataImport.totalRows = Int(min(total ?? max(completed, 1), Int64(Int.max)))
                     }
                 }
                 await MainActor.run {
                     guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                        self.datasetImportError = String(localized: "app-state.corpus.empty-file", defaultValue: "That corpus file was empty.", comment: "Error message when selected corpus file has no content")
+                        self.datasetImportError = String(
+                            localized: "app-state.corpus.empty-file",
+                            defaultValue: "That corpus file was empty.",
+                            comment: "Error message when selected corpus file has no content"
+                        )
                         self.finishViewerImport(error: nil)
                         return
                     }
-                    self.installCorpus(name: dataset.displayName, origin: String(format: String(localized: "app-state.dataset-source.hugging-face-with-id", defaultValue: "Hugging Face · %@", comment: "Dataset source label with Hugging Face dataset identifier"), "\(dataset.id)"), text: text)
+                    self.installCorpus(name: dataset.displayName, origin: String(format: String(
+                        localized: "app-state.dataset-source.hugging-face-with-id",
+                        defaultValue: "Hugging Face · %@",
+                        comment: "Dataset source label with Hugging Face dataset identifier"
+                    ), "\(dataset.id)"), text: text)
                     self.finishViewerImport(error: nil)
                 }
             } catch is CancellationError {
@@ -592,7 +660,11 @@ final class AppState: ObservableObject {
         if let installed = installedDataset(for: recipe) {
             addToMix(installed)
             applyRecipeShare(recipe, to: installed)
-            recipeStatus = String(format: String(localized: "app-state.install.recipe-ready-already-installed", defaultValue: "%@ is ready — %@ is already installed.", comment: "Install status when recipe target is already installed"), "\(recipe.name)", "\(installed.name)")
+            recipeStatus = String(format: String(
+                localized: "app-state.install.recipe-ready-already-installed",
+                defaultValue: "%@ is ready — %@ is already installed.",
+                comment: "Install status when recipe target is already installed"
+            ), "\(recipe.name)", "\(installed.name)")
             return
         }
         downloadRecipeDataset(recipe)
@@ -608,7 +680,11 @@ final class AppState: ObservableObject {
     /// data as Parquet.
     private func downloadRecipeDataset(_ recipe: Recipe) {
         let target = recipe.data
-        recipeStatus = String(format: String(localized: "app-state.install.installing-target-for-recipe", defaultValue: "Installing %@ for %@…", comment: "Install status while installing selected target for recipe"), "\(target.title)", "\(recipe.name)")
+        recipeStatus = String(format: String(
+            localized: "app-state.install.installing-target-for-recipe",
+            defaultValue: "Installing %@ for %@…",
+            comment: "Install status while installing selected target for recipe"
+        ), "\(target.title)", "\(recipe.name)")
         let dataset = HFHubDataset(id: target.repo, title: target.title)
         let hubKind: HFHubBrowser.Kind = target.kind == .corpus ? .corpus : .fineTune
         pendingRecipeDatasetID = nil
@@ -634,7 +710,11 @@ final class AppState: ObservableObject {
             await MainActor.run {
                 guard let source else {
                     self.recipeStatus = nil
-                    self.datasetImportError = String(format: String(localized: "app-state.install.missing-importable-file", defaultValue: "Couldn't find an importable file for %@. Install the data from the dataset browser and run the recipe again.", comment: "Error message when no importable file exists for target repository"), "\(target.repo)")
+                    self.datasetImportError = String(format: String(
+                        localized: "app-state.install.missing-importable-file",
+                        defaultValue: "Couldn't find an importable file for %@. Install the data from the dataset browser and run the recipe again.",
+                        comment: "Error message when no importable file exists for target repository"
+                    ), "\(target.repo)")
                     return
                 }
                 self.pendingRecipe = recipe
@@ -651,26 +731,50 @@ final class AppState: ObservableObject {
     private func finishRecipeInstallIfNeeded(_ dataset: InstalledDataset) {
         guard let recipe = pendingRecipe, recipe.data.kind == dataset.kind else { return }
         applyRecipeShare(recipe, to: dataset)
-        recipeStatus = String(format: String(localized: "app-state.install.recipe-ready-dataset-installed", defaultValue: "%@ is ready — %@ installed.", comment: "Install completion message showing recipe and dataset names"), "\(recipe.name)", "\(dataset.name)")
+        recipeStatus = String(format: String(
+            localized: "app-state.install.recipe-ready-dataset-installed",
+            defaultValue: "%@ is ready — %@ installed.",
+            comment: "Install completion message showing recipe and dataset names"
+        ), "\(recipe.name)", "\(dataset.name)")
         pendingRecipe = nil
     }
 
     // MARK: - Training entry points
 
     func startTraining(resumeFrom: URL? = nil) {
-        guard hasCorpus else { datasetImportError = String(localized: "app-state.training.corpus-required-before-start", defaultValue: "Choose at least one installed corpus in the training data panel before starting training.", comment: "Guidance message when no corpus is selected before training"); return }
+        guard hasCorpus else { datasetImportError = String(
+            localized: "app-state.training.corpus-required-before-start",
+            defaultValue: "Choose at least one installed corpus in the training data panel before starting training.",
+            comment: "Guidance message when no corpus is selected before training"
+        ); return }
         do {
             try MLXMetalLibrary.ensureAvailable()
         } catch {
-            datasetImportError = String(format: String(localized: "app-state.training.mlx-metal-prepare-failed", defaultValue: "Couldn't prepare MLX Metal: %@", comment: "Error when MLX Metal preparation fails before training"), "\(error.localizedDescription)")
+            datasetImportError = String(format: String(
+                localized: "app-state.training.mlx-metal-prepare-failed",
+                defaultValue: "Couldn't prepare MLX Metal: %@",
+                comment: "Error when MLX Metal preparation fails before training"
+            ), "\(error.localizedDescription)")
             return
         }
-        loading.begin(String(localized: "app-state.training.preparing-title", defaultValue: "Preparing training", comment: "Progress title while preparing training run"), detail: String(localized: "app-state.training.reading-selected-mix", defaultValue: "Reading the selected training mix…", comment: "Progress detail while reading selected training mix"))
+        loading.begin(String(
+            localized: "app-state.training.preparing-title",
+            defaultValue: "Preparing training",
+            comment: "Progress title while preparing training run"
+        ), detail: String(
+            localized: "app-state.training.reading-selected-mix",
+            defaultValue: "Reading the selected training mix…",
+            comment: "Progress detail while reading selected training mix"
+        ))
         prepareCorpus { [weak self] in
             guard let self else { return }
             guard !self.corpus.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                 self.loading.end()
-                self.datasetImportError = String(localized: "app-state.training.selected-corpus-empty", defaultValue: "The selected corpus files are empty. Adjust the training mix and try again.", comment: "Error when selected corpus files contain no usable text")
+                self.datasetImportError = String(
+                    localized: "app-state.training.selected-corpus-empty",
+                    defaultValue: "The selected corpus files are empty. Adjust the training mix and try again.",
+                    comment: "Error when selected corpus files contain no usable text"
+                )
                 return
             }
             if let resumeFrom, let meta = try? Checkpoint.loadMeta(from: resumeFrom) {
@@ -682,7 +786,11 @@ final class AppState: ObservableObject {
                 self.gptConfig.vocabSize = tok.vocabSize
             }
             guard let tok = self.tokenizer else { self.loading.end(); return }
-            self.loading.update(detail: String(localized: "app-state.training.building-model-and-dataset", defaultValue: "Building model and dataset…", comment: "Progress detail while building model and dataset for training"), progress: nil)
+            self.loading.update(detail: String(
+                localized: "app-state.training.building-model-and-dataset",
+                defaultValue: "Building model and dataset…",
+                comment: "Progress detail while building model and dataset for training"
+            ), progress: nil)
             self.trainer.start(gptConfig: self.gptConfig, trainConfig: self.trainConfig, tokenizer: tok, corpus: self.corpus,
                                hardware: self.hardware, datasetName: self.corpusName, resumeFrom: resumeFrom)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { self.loading.end() }
@@ -690,19 +798,39 @@ final class AppState: ObservableObject {
     }
 
     func startSFT(useLoRA: Bool, resumeFrom: URL? = nil) {
-        guard hasFineTuneData else { datasetImportError = String(localized: "app-state.finetuning.dataset-required", defaultValue: "Select at least one installed fine-tuning dataset in the training data panel.", comment: "Guidance message when no fine-tuning dataset is selected"); return }
+        guard hasFineTuneData else { datasetImportError = String(
+            localized: "app-state.finetuning.dataset-required",
+            defaultValue: "Select at least one installed fine-tuning dataset in the training data panel.",
+            comment: "Guidance message when no fine-tuning dataset is selected"
+        ); return }
         do {
             try MLXMetalLibrary.ensureAvailable()
         } catch {
-            datasetImportError = String(format: String(localized: "app-state.finetuning.mlx-metal-prepare-failed", defaultValue: "Couldn't prepare MLX Metal: %@", comment: "Error when MLX Metal preparation fails before fine-tuning"), "\(error.localizedDescription)")
+            datasetImportError = String(format: String(
+                localized: "app-state.finetuning.mlx-metal-prepare-failed",
+                defaultValue: "Couldn't prepare MLX Metal: %@",
+                comment: "Error when MLX Metal preparation fails before fine-tuning"
+            ), "\(error.localizedDescription)")
             return
         }
-        loading.begin(String(localized: "app-state.finetuning.preparing-title", defaultValue: "Preparing fine-tuning", comment: "Progress title while preparing fine-tuning run"), detail: String(localized: "app-state.finetuning.reading-selected-mix", defaultValue: "Reading the selected fine-tuning mix…", comment: "Progress detail while reading selected fine-tuning mix"))
+        loading.begin(String(
+            localized: "app-state.finetuning.preparing-title",
+            defaultValue: "Preparing fine-tuning",
+            comment: "Progress title while preparing fine-tuning run"
+        ), detail: String(
+            localized: "app-state.finetuning.reading-selected-mix",
+            defaultValue: "Reading the selected fine-tuning mix…",
+            comment: "Progress detail while reading selected fine-tuning mix"
+        ))
         prepareFineTuneData { [weak self] in
             guard let self else { return }
             guard !self.sftConversations.isEmpty else {
                 self.loading.end()
-                self.datasetImportError = String(localized: "app-state.finetuning.no-usable-rows", defaultValue: "No usable rows were found in the selected fine-tuning mix.", comment: "Error when selected fine-tuning data has no usable rows")
+                self.datasetImportError = String(
+                    localized: "app-state.finetuning.no-usable-rows",
+                    defaultValue: "No usable rows were found in the selected fine-tuning mix.",
+                    comment: "Error when selected fine-tuning data has no usable rows"
+                )
                 return
             }
             if let resumeFrom, let meta = try? Checkpoint.loadMeta(from: resumeFrom) {
@@ -730,7 +858,11 @@ final class AppState: ObservableObject {
 
     private func finishSFT(useLoRA: Bool, resumeFrom: URL?) {
         guard let tok = tokenizer else { loading.end(); return }
-        loading.update(detail: String(localized: "app-state.dpo.building-chat-batches-loss-masking", defaultValue: "Building chat batches with loss masking…", comment: "Progress detail while preparing DPO chat batches"), progress: nil)
+        loading.update(detail: String(
+            localized: "app-state.dpo.building-chat-batches-loss-masking",
+            defaultValue: "Building chat batches with loss masking…",
+            comment: "Progress detail while preparing DPO chat batches"
+        ), progress: nil)
         trainer.startSFT(gptConfig: gptConfig, trainConfig: trainConfig, tokenizer: tok,
                          conversations: sftConversations, useLoRA: useLoRA,
                          hardware: hardware, datasetName: sftDatasetName, resumeFrom: resumeFrom)
@@ -741,10 +873,22 @@ final class AppState: ObservableObject {
         do {
             try MLXMetalLibrary.ensureAvailable()
         } catch {
-            datasetImportError = String(format: String(localized: "app-state.dpo.mlx-metal-prepare-failed", defaultValue: "Couldn't prepare MLX Metal: %@", comment: "Error when MLX Metal preparation fails before DPO"), "\(error.localizedDescription)")
+            datasetImportError = String(format: String(
+                localized: "app-state.dpo.mlx-metal-prepare-failed",
+                defaultValue: "Couldn't prepare MLX Metal: %@",
+                comment: "Error when MLX Metal preparation fails before DPO"
+            ), "\(error.localizedDescription)")
             return
         }
-        loading.begin(String(localized: "app-state.dpo.preparing-title", defaultValue: "Preparing DPO", comment: "Progress title while preparing DPO run"), detail: String(localized: "app-state.dpo.building-preference-pairs", defaultValue: "Building preference pairs…", comment: "Progress detail while constructing preference pairs for DPO"))
+        loading.begin(String(
+            localized: "app-state.dpo.preparing-title",
+            defaultValue: "Preparing DPO",
+            comment: "Progress title while preparing DPO run"
+        ), detail: String(
+            localized: "app-state.dpo.building-preference-pairs",
+            defaultValue: "Building preference pairs…",
+            comment: "Progress detail while constructing preference pairs for DPO"
+        ))
         trainer.startDPO(trainConfig: trainConfig, examples: dpoExamples, hardware: hardware)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { self.loading.end() }
     }
@@ -753,10 +897,18 @@ final class AppState: ObservableObject {
         do {
             try MLXMetalLibrary.ensureAvailable()
         } catch {
-            datasetImportError = String(format: String(localized: "app-state.checkpoint.mlx-metal-prepare-failed", defaultValue: "Couldn't prepare MLX Metal: %@", comment: "Error when MLX Metal preparation fails before checkpoint load"), "\(error.localizedDescription)")
+            datasetImportError = String(format: String(
+                localized: "app-state.checkpoint.mlx-metal-prepare-failed",
+                defaultValue: "Couldn't prepare MLX Metal: %@",
+                comment: "Error when MLX Metal preparation fails before checkpoint load"
+            ), "\(error.localizedDescription)")
             return
         }
-        loading.begin(String(localized: "app-state.checkpoint.loading-title", defaultValue: "Loading checkpoint", comment: "Progress title while loading checkpoint"), detail: url.lastPathComponent)
+        loading.begin(String(
+            localized: "app-state.checkpoint.loading-title",
+            defaultValue: "Loading checkpoint",
+            comment: "Progress title while loading checkpoint"
+        ), detail: url.lastPathComponent)
         DispatchQueue.global().async {
             do {
                 let model = try Checkpoint.loadModel(from: url, meta: meta)
@@ -769,7 +921,11 @@ final class AppState: ObservableObject {
                 }
             } catch {
                 DispatchQueue.main.async {
-                    self.datasetImportError = String(format: String(localized: "app-state.checkpoint.load-failed", defaultValue: "Couldn't load checkpoint: %@", comment: "Error when checkpoint loading fails"), "\(error.localizedDescription)")
+                    self.datasetImportError = String(format: String(
+                        localized: "app-state.checkpoint.load-failed",
+                        defaultValue: "Couldn't load checkpoint: %@",
+                        comment: "Error when checkpoint loading fails"
+                    ), "\(error.localizedDescription)")
                     self.loading.end()
                 }
             }
@@ -778,38 +934,70 @@ final class AppState: ObservableObject {
 
     func prepareContinuation(from url: URL, meta: Checkpoint.Meta, asFineTune: Bool) {
         guard meta.quantizedBits == nil else {
-            datasetImportError = String(localized: "app-state.checkpoint.quantized-cannot-continue-training", defaultValue: "Quantized checkpoints can be sampled but not continued for training. Load the original checkpoint instead.", comment: "Warning that quantized checkpoints cannot resume training")
+            datasetImportError = String(
+                localized: "app-state.checkpoint.quantized-cannot-continue-training",
+                defaultValue: "Quantized checkpoints can be sampled but not continued for training. Load the original checkpoint instead.",
+                comment: "Warning that quantized checkpoints cannot resume training"
+            )
             return
         }
         pendingContinuation = (url, meta)
         gptConfig = meta.config
         tokenizer = meta.tokenizer
         NotificationCenter.default.post(name: .prepareTrainingContinuation, object: asFineTune ? "sft" : "pretrain")
-        NotificationCenter.default.post(name: .navigateToSection, object: String(localized: "app-state.job.training.title", defaultValue: "Training", comment: "Job title for training workflow"))
+        NotificationCenter.default.post(name: .navigateToSection, object: String(
+            localized: "app-state.job.training.title",
+            defaultValue: "Training",
+            comment: "Job title for training workflow"
+        ))
     }
 
     // MARK: - Dataset import (SFT)
 
     func importLocalJSONL(url: URL) {
-        loading.begin(String(localized: "app-state.dataset-import.title", defaultValue: "Importing dataset", comment: "Progress title while importing a dataset file"), detail: String(format: String(localized: "app-state.dataset-import.initial-progress", defaultValue: "0%% · %@", comment: "Initial import progress with source filename"), "\(url.lastPathComponent)"))
+        loading.begin(String(
+            localized: "app-state.dataset-import.title",
+            defaultValue: "Importing dataset",
+            comment: "Progress title while importing a dataset file"
+        ), detail: String(format: String(
+            localized: "app-state.dataset-import.initial-progress",
+            defaultValue: "0%% · %@",
+            comment: "Initial import progress with source filename"
+        ), "\(url.lastPathComponent)"))
         let loading = loading
         DispatchQueue.global().async {
             guard let text = try? Self.readUTF8Text(from: url, progress: { completed, total in
-                loading.update(detail: String(format: String(localized: "app-state.dataset-import.progress", defaultValue: "%@ · %@ of %@", comment: "Dataset import progress with percent and byte counts"), "\(Self.percent(completed, total))", "\(Self.formatBytes(completed))", "\(Self.formatBytes(total))"), progress: Double(completed) / Double(max(total, 1)))
+                loading.update(detail: String(format: String(
+                    localized: "app-state.dataset-import.progress",
+                    defaultValue: "%@ · %@ of %@",
+                    comment: "Dataset import progress with percent and byte counts"
+                ), "\(Self.percent(completed, total))", "\(Self.formatBytes(completed))", "\(Self.formatBytes(total))"), progress: Double(completed) / Double(max(total, 1)))
             }) else {
                 DispatchQueue.main.async {
-                    self.datasetImportError = String(localized: "app-state.dataset-import.read-utf8-failed", defaultValue: "Couldn't read that file as UTF-8 text.", comment: "Error when imported dataset file cannot be decoded as UTF-8")
+                    self.datasetImportError = String(
+                        localized: "app-state.dataset-import.read-utf8-failed",
+                        defaultValue: "Couldn't read that file as UTF-8 text.",
+                        comment: "Error when imported dataset file cannot be decoded as UTF-8"
+                    )
                     self.loading.end()
                 }
                 return
             }
-            loading.update(detail: String(localized: "app-state.dataset-import.parsing-rows", defaultValue: "Parsing rows…", comment: "Progress detail while parsing imported dataset rows"), progress: nil)
+            loading.update(detail: String(
+                localized: "app-state.dataset-import.parsing-rows",
+                defaultValue: "Parsing rows…",
+                comment: "Progress detail while parsing imported dataset rows"
+            ), progress: nil)
             let convs = url.pathExtension.lowercased() == "json" ? ConversationImport.parseJSON(text) : ConversationImport.parseJSONL(text)
             DispatchQueue.main.async {
                 if convs.isEmpty {
                     self.datasetImportError = ConversationImportError.noValidRows.localizedDescription
                 } else {
-                    self.installFineTuneData(name: url.lastPathComponent, origin: String(localized: "app-state.dataset-source.local-jsonl", defaultValue: "Local JSONL", comment: "Source label for a local JSONL fine-tuning file"), conversations: convs)
+                    self.installFineTuneData(name: url.lastPathComponent, origin: String(
+                        localized: "app-state.dataset-source.local-jsonl",
+                        defaultValue: "Local JSONL",
+                        comment: "Source label for a local JSONL fine-tuning file"
+                    ), conversations: convs)
                 }
                 self.loading.end()
             }
@@ -817,24 +1005,52 @@ final class AppState: ObservableObject {
     }
 
     func downloadHFDataset(_ dataset: HFHubDataset, file: HFHubFile) {
-        dataImport.begin(title: String(localized: "app-state.finetuning-download.title", defaultValue: "Downloading fine-tuning data", comment: "Progress title while downloading fine-tuning dataset"), detail: dataset.id, totalRows: max(1, file.size ?? 1), queuedTitles: [], unit: String(localized: "app-state.finetuning-download.unit.bytes", defaultValue: "bytes", comment: "Unit label for byte-based fine-tuning download progress"))
+        dataImport.begin(title: String(
+            localized: "app-state.finetuning-download.title",
+            defaultValue: "Downloading fine-tuning data",
+            comment: "Progress title while downloading fine-tuning dataset"
+        ), detail: dataset.id, totalRows: max(1, file.size ?? 1), queuedTitles: [], unit: String(
+            localized: "app-state.finetuning-download.unit.bytes",
+            defaultValue: "bytes",
+            comment: "Unit label for byte-based fine-tuning download progress"
+        ))
         activeDataImportTask = Task { [weak self] in
             guard let self else { return }
             do {
                 let text = try await HFDownloader.download(repo: dataset.id, filePath: file.path) { completed, total in
                     Task { @MainActor [weak self] in
                         self?.dataImport.update(completedRows: Int(min(completed, Int64(Int.max))),
-                                                detail: String(format: String(localized: "app-state.finetuning-download.progress-from-dataset", defaultValue: "%@ of %@ from %@", comment: "Fine-tuning download progress with completed bytes, total bytes fallback, and dataset name"), "\(Self.formatBytes(completed))", "\(total.map(Self.formatBytes) ?? String(localized: "app-state.finetuning-download.unknown-size", defaultValue: "unknown size", comment: "Fallback label when fine-tuning download size is unknown"))", "\(dataset.displayName)"))
+                                                detail: String(format: String(
+                                                    localized: "app-state.finetuning-download.progress-from-dataset",
+                                                    defaultValue: "%@ of %@ from %@",
+                                                    comment: "Fine-tuning download progress with completed bytes, total bytes fallback, and dataset name"
+                                                ), "\(Self.formatBytes(completed))", "\(total.map(Self.formatBytes) ?? String(
+                                                    localized: "app-state.finetuning-download.unknown-size",
+                                                    defaultValue: "unknown size",
+                                                    comment: "Fallback label when fine-tuning download size is unknown"
+                                                ))", "\(dataset.displayName)"))
                         self?.dataImport.totalRows = Int(min(total ?? max(completed, 1), Int64(Int.max)))
                     }
                 }
                 let convs = file.path.lowercased().hasSuffix(".json") ? ConversationImport.parseJSON(text) : ConversationImport.parseJSONL(text)
                 await MainActor.run {
                     if convs.isEmpty {
-                        self.finishViewerImport(error: String(localized: "app-state.finetuning-download.no-recognized-rows", defaultValue: "Downloaded the file, but no rows matched a recognized instruction or conversation format. Choose another JSON or JSONL file from this dataset.", comment: "Error when downloaded fine-tuning file has no recognizable instruction or conversation rows"))
+                        self.finishViewerImport(error: String(
+                            localized: "app-state.finetuning-download.no-recognized-rows",
+                            defaultValue: "Downloaded the file, but no rows matched a recognized instruction or conversation format. Choose another JSON or JSONL file from this dataset.",
+                            comment: "Error when downloaded fine-tuning file has no recognizable instruction or conversation rows"
+                        ))
                     } else {
-                        self.installFineTuneData(name: dataset.displayName, origin: String(format: String(localized: "app-state.dataset-source.hugging-face-id", defaultValue: "Hugging Face · %@", comment: "Dataset source label showing Hugging Face identifier"), "\(dataset.id)"), conversations: convs)
-                        self.dataImport.update(completedRows: convs.count, detail: String(format: String(localized: "app-state.finetuning-install.rows-and-pairs", defaultValue: "Installed %@ rows with %@ fine-tuning pairs", comment: "Completion message with installed row and pair counts for fine-tuning data"), "\(convs.count.formatted())", "\(ConversationImport.pairCount(in: convs.flatMap { $0 }).formatted())"))
+                        self.installFineTuneData(name: dataset.displayName, origin: String(format: String(
+                            localized: "app-state.dataset-source.hugging-face-id",
+                            defaultValue: "Hugging Face · %@",
+                            comment: "Dataset source label showing Hugging Face identifier"
+                        ), "\(dataset.id)"), conversations: convs)
+                        self.dataImport.update(completedRows: convs.count, detail: String(format: String(
+                            localized: "app-state.finetuning-install.rows-and-pairs",
+                            defaultValue: "Installed %@ rows with %@ fine-tuning pairs",
+                            comment: "Completion message with installed row and pair counts for fine-tuning data"
+                        ), "\(convs.count.formatted())", "\(ConversationImport.pairCount(in: convs.flatMap { $0 }).formatted())"))
                         self.finishViewerImport(error: nil)
                     }
                 }
@@ -869,8 +1085,20 @@ final class AppState: ObservableObject {
         guard activeDataImportTask == nil, !viewerImportQueue.isEmpty else { return }
         let job = viewerImportQueue.removeFirst()
         dataImport.begin(
-            title: job.kind == .corpus ? String(localized: "app-state.viewer-import.pretraining-title", defaultValue: "Importing pre-training data", comment: "Progress title for importing pre-training data from dataset viewer") : String(localized: "app-state.viewer-import.finetuning-title", defaultValue: "Importing fine-tuning data", comment: "Progress title for importing fine-tuning data from dataset viewer"),
-            detail: String(format: String(localized: "app-state.viewer-import.preparing-job", defaultValue: "Preparing %@", comment: "Progress detail while preparing an import job"), "\(job.title)"),
+            title: job.kind == .corpus ? String(
+                localized: "app-state.viewer-import.pretraining-title",
+                defaultValue: "Importing pre-training data",
+                comment: "Progress title for importing pre-training data from dataset viewer"
+            ) : String(
+                localized: "app-state.viewer-import.finetuning-title",
+                defaultValue: "Importing fine-tuning data",
+                comment: "Progress title for importing fine-tuning data from dataset viewer"
+            ),
+            detail: String(format: String(
+                localized: "app-state.viewer-import.preparing-job",
+                defaultValue: "Preparing %@",
+                comment: "Progress detail while preparing an import job"
+            ), "\(job.title)"),
             totalRows: min(job.limit, job.source.totalRows),
             queuedTitles: viewerImportQueue.map(\.title)
         )
@@ -879,7 +1107,11 @@ final class AppState: ObservableObject {
             do {
                 let rows = try await HFHubClient.viewerRows(repo: job.dataset.id, source: job.source, limit: job.limit) { completed, total in
                     Task { @MainActor [weak self] in
-                        self?.dataImport.update(completedRows: completed, detail: String(format: String(localized: "app-state.viewer-import.processed-rows-progress", defaultValue: "Processed %@ of %@ rows from %@", comment: "Progress message showing processed row count out of total for import job"), "\(completed.formatted())", "\(total.formatted())", "\(job.title)"))
+                        self?.dataImport.update(completedRows: completed, detail: String(format: String(
+                            localized: "app-state.viewer-import.processed-rows-progress",
+                            defaultValue: "Processed %@ of %@ rows from %@",
+                            comment: "Progress message showing processed row count out of total for import job"
+                        ), "\(completed.formatted())", "\(total.formatted())", "\(job.title)"))
                     }
                 }
                 try Task.checkCancellation()
@@ -897,17 +1129,33 @@ final class AppState: ObservableObject {
         case .corpus:
             let text = rows.compactMap(ConversationImport.pretrainingText(from:)).joined(separator: "\n\n")
             guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                finishViewerImport(error: String(localized: "app-state.viewer-import.no-text-column", defaultValue: "This dataset has no recognizable text column to use for pre-training.", comment: "Error when dataset viewer cannot find a text column for pre-training import"))
+                finishViewerImport(error: String(
+                    localized: "app-state.viewer-import.no-text-column",
+                    defaultValue: "This dataset has no recognizable text column to use for pre-training.",
+                    comment: "Error when dataset viewer cannot find a text column for pre-training import"
+                ))
                 return
             }
-            installCorpus(name: job.dataset.displayName, origin: String(format: String(localized: "app-state.dataset-source.hugging-face-viewer-id", defaultValue: "Hugging Face Viewer · %@", comment: "Source label for Hugging Face Viewer import with dataset identifier"), "\(job.dataset.id)"), text: text)
+            installCorpus(name: job.dataset.displayName, origin: String(format: String(
+                localized: "app-state.dataset-source.hugging-face-viewer-id",
+                defaultValue: "Hugging Face Viewer · %@",
+                comment: "Source label for Hugging Face Viewer import with dataset identifier"
+            ), "\(job.dataset.id)"), text: text)
         case .fineTune:
             let conversations = ConversationImport.conversations(from: rows)
             guard !conversations.isEmpty else {
-                finishViewerImport(error: String(localized: "app-state.viewer-import.no-recognized-conversation-columns", defaultValue: "This dataset doesn't expose recognized messages, instruction/output, or prompt/response columns.", comment: "Error when dataset viewer lacks recognized conversation columns"))
+                finishViewerImport(error: String(
+                    localized: "app-state.viewer-import.no-recognized-conversation-columns",
+                    defaultValue: "This dataset doesn't expose recognized messages, instruction/output, or prompt/response columns.",
+                    comment: "Error when dataset viewer lacks recognized conversation columns"
+                ))
                 return
             }
-            installFineTuneData(name: job.dataset.displayName, origin: String(format: String(localized: "app-state.dataset-source.hugging-face-viewer-with-id", defaultValue: "Hugging Face Viewer · %@", comment: "Source label for Hugging Face Viewer import with dataset identifier"), "\(job.dataset.id)"), conversations: conversations)
+            installFineTuneData(name: job.dataset.displayName, origin: String(format: String(
+                localized: "app-state.dataset-source.hugging-face-viewer-with-id",
+                defaultValue: "Hugging Face Viewer · %@",
+                comment: "Source label for Hugging Face Viewer import with dataset identifier"
+            ), "\(job.dataset.id)"), conversations: conversations)
         }
         finishViewerImport(error: nil)
     }
@@ -920,17 +1168,33 @@ final class AppState: ObservableObject {
     }
 
     func importIMessageDatabase(url: URL) {
-        loading.begin(String(localized: "app-state.imessage-import.title", defaultValue: "Importing iMessage chats", comment: "Progress title while importing iMessage chat database"), detail: url.lastPathComponent)
+        loading.begin(String(
+            localized: "app-state.imessage-import.title",
+            defaultValue: "Importing iMessage chats",
+            comment: "Progress title while importing iMessage chat database"
+        ), detail: url.lastPathComponent)
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let conversations = try ConversationImport.parseIMessageDatabase(at: url)
                 DispatchQueue.main.async {
                     guard !conversations.isEmpty else {
-                        self.datasetImportError = String(localized: "app-state.imessage-import.no-usable-conversations", defaultValue: "No usable text conversations were found. Choose chat.db and allow Full Disk Access for LabLLM if macOS blocks it.", comment: "Error guidance when iMessage import finds no usable conversations")
+                        self.datasetImportError = String(
+                            localized: "app-state.imessage-import.no-usable-conversations",
+                            defaultValue: "No usable text conversations were found. Choose chat.db and allow Full Disk Access for LabLLM if macOS blocks it.",
+                            comment: "Error guidance when iMessage import finds no usable conversations"
+                        )
                         self.loading.end()
                         return
                     }
-                    self.installFineTuneData(name: String(localized: "app-state.imessage-import.source-title", defaultValue: "iMessage chats", comment: "Source title label for imported iMessage chats"), origin: String(localized: "app-state.imessage-import.source-subtitle", defaultValue: "Local iMessage database", comment: "Source subtitle label for local iMessage database"), conversations: conversations)
+                    self.installFineTuneData(name: String(
+                        localized: "app-state.imessage-import.source-title",
+                        defaultValue: "iMessage chats",
+                        comment: "Source title label for imported iMessage chats"
+                    ), origin: String(
+                        localized: "app-state.imessage-import.source-subtitle",
+                        defaultValue: "Local iMessage database",
+                        comment: "Source subtitle label for local iMessage database"
+                    ), conversations: conversations)
                     self.loading.end()
                 }
             } catch {
@@ -970,7 +1234,11 @@ final class AppState: ObservableObject {
         }) {}
         progress(max(completed, total), max(total, completed))
         guard let text = String(data: data, encoding: .utf8) else {
-            throw ConversationImportError.network(String(localized: "app-state.file-import.read-utf8-failed", defaultValue: "Couldn't read that file as UTF-8 text.", comment: "Error when imported file cannot be decoded as UTF-8 text"))
+            throw ConversationImportError.network(String(
+                localized: "app-state.file-import.read-utf8-failed",
+                defaultValue: "Couldn't read that file as UTF-8 text.",
+                comment: "Error when imported file cannot be decoded as UTF-8 text"
+            ))
         }
         return text
     }
@@ -999,7 +1267,15 @@ final class AppState: ObservableObject {
     // MARK: - Quantization
 
     func quantizeCheckpoint(_ url: URL, bits: Int, completion: @escaping (Result<(URL, Int, Int), Error>) -> Void) {
-        loading.begin(String(localized: "app-state.quantization.progress-title", defaultValue: "Quantizing", comment: "Progress title while quantizing a model"), detail: String(format: String(localized: "app-state.quantization.bits-progress", defaultValue: "%d-bit…", comment: "Progress subtitle showing target quantization bit width"), bits))
+        loading.begin(String(
+            localized: "app-state.quantization.progress-title",
+            defaultValue: "Quantizing",
+            comment: "Progress title while quantizing a model"
+        ), detail: String(format: String(
+            localized: "app-state.quantization.bits-progress",
+            defaultValue: "%d-bit…",
+            comment: "Progress subtitle showing target quantization bit width"
+        ), bits))
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let result = try Checkpoint.saveQuantized(from: url, bits: bits, hardware: self.hardware)
