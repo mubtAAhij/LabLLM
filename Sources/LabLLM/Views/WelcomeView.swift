@@ -23,16 +23,16 @@ struct WelcomeView: View {
             Divider()
             HStack {
                 if page > 0 {
-                    Button("Back") { withAnimation { page -= 1 } }
+                    Button(String(localized: "welcome-view.navigation.back", defaultValue: "Back", comment: "Button title to go to previous onboarding step")) { withAnimation { page -= 1 } }
                 }
                 Spacer()
                 PageDots(count: pages, index: page)
                 Spacer()
                 if page < pages - 1 {
-                    Button("Next") { withAnimation { page += 1 } }
+                    Button(String(localized: "welcome-view.navigation.next", defaultValue: "Next", comment: "Button title to go to next onboarding step")) { withAnimation { page += 1 } }
                         .keyboardShortcut(.defaultAction)
                 } else {
-                    Button("Get started") {
+                    Button(String(localized: "welcome-view.navigation.get-started", defaultValue: "Get started", comment: "Button title to finish onboarding and start using app")) {
                         prefs.hasOnboarded = true
                         onFinish()
                     }
@@ -49,8 +49,8 @@ struct WelcomeView: View {
         VStack(spacing: 16) {
             Image(systemName: "brain.head.profile")
                 .font(.system(size: 64)).foregroundStyle(.tint)
-            Text("Welcome to LabLLM").font(.largeTitle.bold())
-            Text("Design, train, and sample small GPT language models locally on your Mac — powered by Apple MLX. No cloud, no account.")
+            Text(String(localized: "welcome-view.hero.title", defaultValue: "Welcome to LabLLM", comment: "Main title on welcome screen")).font(.largeTitle.bold())
+            Text(String(localized: "welcome-view.hero.subtitle", defaultValue: "Design, train, and sample small GPT language models locally on your Mac — powered by Apple MLX. No cloud, no account.", comment: "Introductory subtitle describing app capabilities and local-first operation"))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: 420)
@@ -59,8 +59,8 @@ struct WelcomeView: View {
 
     private var modePicker: some View {
         VStack(spacing: 16) {
-            Text("Pick your comfort level").font(.title.bold())
-            Text("You can change this anytime in Settings.").foregroundStyle(.secondary)
+            Text(String(localized: "welcome-view.experience-level.title", defaultValue: "Pick your comfort level", comment: "Title for choosing onboarding experience level")).font(.title.bold())
+            Text(String(localized: "welcome-view.experience-level.subtitle", defaultValue: "You can change this anytime in Settings.", comment: "Helper text explaining experience level can be changed later")).foregroundStyle(.secondary)
             ForEach(AppMode.allCases) { mode in
                 Button {
                     prefs.mode = mode
@@ -86,12 +86,12 @@ struct WelcomeView: View {
 
     private var flow: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("The basic flow").font(.title.bold()).frame(maxWidth: .infinity, alignment: .center)
-            step("1", "cube.transparent", "Design a model", "Choose a size preset or tune the architecture.")
-            step("2", "text.book.closed", "Bring data", "Use the built-in sample or import a .txt file, then build a tokenizer.")
-            step("3", "waveform.path.ecg", "Train", "Watch the loss drop live. Pause or stop anytime.")
-            step("4", "text.cursor", "Sample", "Generate text from your trained model.")
-            Text("Tip: turn on the tutorial from the toolbar if you'd like guided coach-marks.")
+            Text(String(localized: "welcome-view.basic-flow.title", defaultValue: "The basic flow", comment: "Section heading introducing core workflow steps")).font(.title.bold()).frame(maxWidth: .infinity, alignment: .center)
+            step("1", "cube.transparent", String(localized: "welcome-view.basic-flow.design-model.title", defaultValue: "Design a model", comment: "Workflow step title for model design"), String(localized: "welcome-view.basic-flow.design-model.description", defaultValue: "Choose a size preset or tune the architecture.", comment: "Workflow step description for model design options"))
+            step("2", "text.book.closed", String(localized: "welcome-view.basic-flow.bring-data.title", defaultValue: "Bring data", comment: "Workflow step title for adding training data"), String(localized: "welcome-view.basic-flow.bring-data.description", defaultValue: "Use the built-in sample or import a .txt file, then build a tokenizer.", comment: "Workflow step description for data import and tokenizer creation"))
+            step("3", "waveform.path.ecg", String(localized: "welcome-view.basic-flow.train.title", defaultValue: "Train", comment: "Workflow step title for model training"), String(localized: "welcome-view.basic-flow.train.description", defaultValue: "Watch the loss drop live. Pause or stop anytime.", comment: "Workflow step description for monitoring and controlling training"))
+            step("4", "text.cursor", String(localized: "welcome-view.basic-flow.sample.title", defaultValue: "Sample", comment: "Workflow step title for text generation"), String(localized: "welcome-view.basic-flow.sample.description", defaultValue: "Generate text from your trained model.", comment: "Workflow step description for sampling from trained model"))
+            Text(String(localized: "welcome-view.basic-flow.tip.tutorial", defaultValue: "Tip: turn on the tutorial from the toolbar if you'd like guided coach-marks.", comment: "Tip text explaining how to enable tutorial coach marks"))
                 .font(.footnote).foregroundStyle(.secondary).padding(.top, 6)
         }.padding(40)
     }
