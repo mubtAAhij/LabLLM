@@ -167,7 +167,11 @@ struct WorkbenchSearchBar: View {
             Button(action: action) {
                 Image(systemName: "arrow.right").font(.caption.weight(.bold)).frame(width: 24, height: 24)
                     .background(WorkbenchTheme.accent, in: RoundedRectangle(cornerRadius: max(4, WorkbenchTheme.cornerRadius - 2), style: .continuous)).foregroundStyle(.white)
-            }.buttonStyle(.plain).help(String(localized: "workbench-design.search.title", defaultValue: "Search", comment: "UI title for search field or section in workbench design"))
+            }.buttonStyle(.plain).help(String(
+                localized: "workbench-design.search.title",
+                defaultValue: "Search",
+                comment: "UI title for search field or section in workbench design"
+            ))
         }
         .padding(7)
         .background(WorkbenchTheme.elevatedPanel, in: RoundedRectangle(cornerRadius: WorkbenchTheme.cornerRadius, style: .continuous))
