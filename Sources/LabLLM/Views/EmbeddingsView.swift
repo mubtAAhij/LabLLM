@@ -13,12 +13,28 @@ struct EmbeddingsView: View {
             if !trainer.hasModel {
                 // The enclosing stack is leading-aligned, so the placeholder needs the
                 // full width to sit in the middle of the page rather than hugging the edge.
-                ContentUnavailableView(String(localized: "embeddings-view.empty-state.no-model-title", defaultValue: "No model to visualize yet", comment: "Title shown when no model is available for embedding visualization"), systemImage: "point.3.connected.trianglepath.dotted",
-                    description: Text(String(localized: "embeddings-view.empty-state.no-model-message", defaultValue: "Train or load a model first.", comment: "Instruction message when model is required for embeddings view")))
+                ContentUnavailableView(String(
+                    localized: "embeddings-view.empty-state.no-model-title",
+                    defaultValue: "No model to visualize yet",
+                    comment: "Title shown when no model is available for embedding visualization"
+                ), systemImage: "point.3.connected.trianglepath.dotted",
+                    description: Text(String(
+                        localized: "embeddings-view.empty-state.no-model-message",
+                        defaultValue: "Train or load a model first.",
+                        comment: "Instruction message when model is required for embeddings view"
+                    )))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if state.embeddingPoints.isEmpty {
-                ContentUnavailableView(String(localized: "embeddings-view.empty-state.no-map-title", defaultValue: "No map yet", comment: "Title shown when embedding map has not been computed"), systemImage: "circle.grid.3x3",
-                    description: Text(String(localized: "embeddings-view.empty-state.no-map-message", defaultValue: "Press Compute to project the model's trained token embeddings into 2D.", comment: "Instruction explaining how to generate embedding map")))
+                ContentUnavailableView(String(
+                    localized: "embeddings-view.empty-state.no-map-title",
+                    defaultValue: "No map yet",
+                    comment: "Title shown when embedding map has not been computed"
+                ), systemImage: "circle.grid.3x3",
+                    description: Text(String(
+                        localized: "embeddings-view.empty-state.no-map-message",
+                        defaultValue: "Press Compute to project the model's trained token embeddings into 2D.",
+                        comment: "Instruction explaining how to generate embedding map"
+                    )))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 canvas.frame(maxHeight: .infinity)
@@ -30,8 +46,16 @@ struct EmbeddingsView: View {
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text(String(localized: "embeddings-view.panel.embedding-map-title", defaultValue: "Embedding Map", comment: "Panel title for embeddings visualization map")).font(.title2.bold())
-                Text(String(localized: "embeddings-view.panel.embedding-map-description", defaultValue: "PCA of the model's real trained token embeddings, then a similarity-based layout pass pulls related tokens together.", comment: "Description of embedding map projection and layout process"))
+                Text(String(
+                    localized: "embeddings-view.panel.embedding-map-title",
+                    defaultValue: "Embedding Map",
+                    comment: "Panel title for embeddings visualization map"
+                )).font(.title2.bold())
+                Text(String(
+                    localized: "embeddings-view.panel.embedding-map-description",
+                    defaultValue: "PCA of the model's real trained token embeddings, then a similarity-based layout pass pulls related tokens together.",
+                    comment: "Description of embedding map projection and layout process"
+                ))
                     .font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
@@ -41,12 +65,24 @@ struct EmbeddingsView: View {
                 Button {
                     state.computeEmbeddingMap()
                     iterations = 0
-                } label: { Label(String(localized: "embeddings-view.action.compute", defaultValue: "Compute", comment: "Button title to compute embedding map"), systemImage: "arrow.triangle.2.circlepath") }
+                } label: { Label(String(
+                    localized: "embeddings-view.action.compute",
+                    defaultValue: "Compute",
+                    comment: "Button title to compute embedding map"
+                ), systemImage: "arrow.triangle.2.circlepath") }
                     .buttonStyle(WorkbenchPrimaryButtonStyle())
             }
             if !state.embeddingPoints.isEmpty {
                 Button { toggleAnimation() } label: {
-                    Label(timer == nil ? String(localized: "embeddings-view.action.animate-clustering", defaultValue: "Animate clustering", comment: "Toggle label to animate token clustering in embedding map") : String(localized: "embeddings-view.action.stop-animation", defaultValue: "Stop", comment: "Button title to stop embedding animation"), systemImage: timer == nil ? "play.fill" : "stop.fill")
+                    Label(timer == nil ? String(
+                        localized: "embeddings-view.action.animate-clustering",
+                        defaultValue: "Animate clustering",
+                        comment: "Toggle label to animate token clustering in embedding map"
+                    ) : String(
+                        localized: "embeddings-view.action.stop-animation",
+                        defaultValue: "Stop",
+                        comment: "Button title to stop embedding animation"
+                    ), systemImage: timer == nil ? "play.fill" : "stop.fill")
                 }.buttonStyle(WorkbenchSecondaryButtonStyle())
             }
         }.padding()
