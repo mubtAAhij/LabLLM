@@ -71,7 +71,7 @@ final class Trainer: ObservableObject {
     @Published var lossHistory: [LossPoint] = []
     @Published var liveSample: String = ""
     @Published var sampleHistory: [TrainingSample] = []
-    @Published var statusMessage: String = "Idle"
+    @Published var statusMessage: String = String(localized: "trainer.state.idle", defaultValue: "Idle", comment: "Trainer state label when no run is active")
     @Published var errorMessage: String? = nil
     @Published var lastCheckpointDir: URL? = nil
     @Published var runIsLoRA = false
@@ -109,8 +109,8 @@ final class Trainer: ObservableObject {
 
     // MARK: - Control
 
-    func pause() { pauseRequested = true; publish { self.isPaused = true; self.statusMessage = "Paused" } }
-    func resume() { pauseRequested = false; publish { self.isPaused = false; self.statusMessage = "Training" } }
+    func pause() { pauseRequested = true; publish { self.isPaused = true; self.statusMessage = String(localized: "trainer.state.paused", defaultValue: "Paused", comment: "Trainer state label when run is paused") } }
+    func resume() { pauseRequested = false; publish { self.isPaused = false; self.statusMessage = String(localized: "trainer.state.training", defaultValue: "Training", comment: "Trainer state label when run is training") } }
     func stop() { stopRequested = true }
 
     /// Called from the app delegate on Cmd+Q / quit. If a run is active, stops it
@@ -127,7 +127,7 @@ final class Trainer: ObservableObject {
     func start(gptConfig: GPTConfig, trainConfig: TrainConfig, tokenizer: Tokenizer, corpus: String,
               hardware: HardwareInfo, datasetName: String?, resumeFrom: URL? = nil) {
         guard !isTraining else { return }
-        beginSession(mode: .pretrain, maxSteps: trainConfig.maxSteps, statusMessage: "Preparing…", datasetName: datasetName)
+        beginSession(mode: .pretrain, maxSteps: trainConfig.maxSteps, statusMessage: String(localized: "trainer.status.preparing", defaultValue: "Preparing…", comment: "Status text while trainer prepares run resources"), datasetName: datasetName)
         queue.async {
             self.run(gptConfig, trainConfig, tokenizer, corpus, hardware, datasetName, resumeFrom)
             self.doneSemaphore.signal()
@@ -152,9 +152,9 @@ final class Trainer: ObservableObject {
             restoredTrainRNGState = meta.trainRNGState
             if restoredOptimizerSnapshot != nil, restoredTrainRNGState != nil {
                 startStep = meta.step + 1
-                publish { self.statusMessage = "Resumed from \(resumeFrom.lastPathComponent)" }
+                publish { self.statusMessage = String(format: String(localized: "trainer.status.resumed-from-checkpoint", defaultValue: "Resumed from %@", comment: "Status text after resuming from a checkpoint file"), "\(resumeFrom.lastPathComponent)") }
             } else {
-                publish { self.statusMessage = "Loaded legacy checkpoint weights; optimizer/RNG state unavailable" }
+                publish { self.statusMessage = String(localized: "trainer.status.legacy-checkpoint-no-optimizer-rng", defaultValue: "Loaded legacy checkpoint weights; optimizer/RNG state unavailable", comment: "Status message indicating legacy checkpoint without optimizer or RNG state") }
             }
         } else {
             model = GPT(config); eval(model.parameters())
@@ -171,7 +171,7 @@ final class Trainer: ObservableObject {
         }
 
         self.model = model; self.tokenizer = tokenizer
-        publish { self.hasModel = true; self.statusMessage = "Training" }
+        publish { self.hasModel = true; self.statusMessage = String(localized: "trainer.mode.training", defaultValue: "Training", comment: "Mode label for generic training run") }
         let startTime = Date(); var lastReport = Date()
 
         if startStep > tc.maxSteps {
@@ -206,7 +206,7 @@ final class Trainer: ObservableObject {
                 let vl = estimateValLoss(model: model, dataset: dataset, batchSize: tc.batchSize)
                 publish { self.valLoss = Double(vl); self.lossHistory.append(LossPoint(step: s, value: Double(vl), kind: .val)) }
             }
-            if s % tc.sampleEvery == 0 { emitLiveSample(model: model, tokenizer: tokenizer, step: s, method: "Pretraining") }
+            if s % tc.sampleEvery == 0 { emitLiveSample(model: model, tokenizer: tokenizer, step: s, method: String(localized: "trainer.mode.pretraining", defaultValue: "Pretraining", comment: "Mode label for pretraining run")) }
             if s % tc.checkpointEvery == 0 {
                 saveCheckpoint(model: model, config: config, tokenizer: tokenizer, step: s,
                               loss: lossValue, valLoss: Float(valLoss), method: "Pretraining",
@@ -224,9 +224,9 @@ final class Trainer: ObservableObject {
         publish {
             self.isTraining = false
             self.runCompleted = !self.stopRequested
-            self.runMethod = "Pretraining"
-            self.statusMessage = self.stopRequested ? "Stopped at step \(self.step) — progress saved"
-                : "Training done" + (final != nil ? " — checkpoint saved" : "")
+            self.runMethod = String(localized: "trainer.progress.pretraining", defaultValue: "Pretraining", comment: "Progress title for pretraining run")
+            self.statusMessage = self.stopRequested ? String(format: String(localized: "trainer.status.stopped-at-step-progress-saved", defaultValue: "Stopped at step %d — progress saved", comment: "Completion message when training stops and saves progress"), self.step)
+                : String(localized: "trainer.status.training-done", defaultValue: "Training done", comment: "Completion message when training finishes") + (final != nil ? " " + String(localized: "trainer.status.checkpoint-saved-suffix", defaultValue: "— checkpoint saved", comment: "Suffix appended to completion message when checkpoint is saved") : "")
         }
     }
 
@@ -236,7 +236,7 @@ final class Trainer: ObservableObject {
                  conversations: [[ChatMessage]], useLoRA: Bool, hardware: HardwareInfo,
                  datasetName: String?, resumeFrom: URL? = nil) {
         guard !isTraining else { return }
-        beginSession(mode: .sft, maxSteps: tc.maxSteps, statusMessage: "Preparing fine-tuning…", datasetName: datasetName)
+        beginSession(mode: .sft, maxSteps: tc.maxSteps, statusMessage: String(localized: "trainer.status.preparing-finetuning", defaultValue: "Preparing fine-tuning…", comment: "Status text while preparing fine-tuning resources"), datasetName: datasetName)
         queue.async {
             self.runSFT(gptConfig, tc, tokenizer, conversations, useLoRA, hardware, datasetName, resumeFrom)
             self.doneSemaphore.signal()
@@ -263,7 +263,7 @@ final class Trainer: ObservableObject {
             if restoredOptimizerSnapshot != nil, restoredTrainRNGState != nil {
                 startStep = meta.step + 1
             } else {
-                publish { self.statusMessage = "Loaded legacy checkpoint weights; optimizer/RNG state unavailable" }
+                publish { self.statusMessage = String(localized: "trainer.status.legacy-checkpoint-no-optimizer-rng-finetuning", defaultValue: "Loaded legacy checkpoint weights; optimizer/RNG state unavailable", comment: "Fine-tuning status when legacy checkpoint lacks optimizer or RNG state") }
             }
         } else if let existing = self.model, existing.config.vocabSize == config.vocabSize,
                   existing.config.nEmbd == config.nEmbd, existing.config.nLayers == config.nLayers {
@@ -287,7 +287,7 @@ final class Trainer: ObservableObject {
         }
 
         self.model = model; self.tokenizer = tokenizer
-        publish { self.hasModel = true; self.statusMessage = model.hasLoRA ? "Fine-tuning (LoRA)" : "Fine-tuning (full)" }
+        publish { self.hasModel = true; self.statusMessage = model.hasLoRA ? String(localized: "trainer.mode.finetuning-lora", defaultValue: "Fine-tuning (LoRA)", comment: "Mode label for LoRA fine-tuning") : String(localized: "trainer.mode.finetuning-full", defaultValue: "Fine-tuning (full)", comment: "Mode label for full fine-tuning") }
         let startTime = Date(); var lastReport = Date()
 
         let maxSteps = max(1, tc.maxSteps)
@@ -313,7 +313,7 @@ final class Trainer: ObservableObject {
                 let result = try withError { () throws -> ([MLXArray], ModuleParameters) in
                     let (values, gradients) = sftVG(model.trainableParameters(), [x, y])
                     guard !values.isEmpty else {
-                        throw TrainingFailure(message: "MLX returned no SFT loss. Try disabling LoRA for this run or reducing batch/context size.")
+                        throw TrainingFailure(message: String(localized: "trainer.error.no-sft-loss", defaultValue: "MLX returned no SFT loss. Try disabling LoRA for this run or reducing batch/context size.", comment: "Error message when MLX returns no supervised fine-tuning loss"))
                     }
                     return (values, gradients)
                 }
@@ -321,8 +321,8 @@ final class Trainer: ObservableObject {
                 grads = result.1
             } catch {
                 publish {
-                    self.errorMessage = "Fine-tuning stopped: \(error.localizedDescription)"
-                    self.statusMessage = "Fine-tuning needs attention"
+                    self.errorMessage = String(format: String(localized: "trainer.error.finetuning-stopped", defaultValue: "Fine-tuning stopped: %@", comment: "Error message when fine-tuning stops with underlying error"), "\(error.localizedDescription)")
+                    self.statusMessage = String(localized: "trainer.error.finetuning-needs-attention", defaultValue: "Fine-tuning needs attention", comment: "Headline for fine-tuning attention-required alert")
                 }
                 break
             }
@@ -338,7 +338,7 @@ final class Trainer: ObservableObject {
                 let vl = estimateSFTValLoss(model: model, dataset: dataset, batchSize: tc.batchSize)
                 publish { self.valLoss = Double(vl); self.lossHistory.append(LossPoint(step: s, value: Double(vl), kind: .val)) }
             }
-            if s % sampleEvery == 0 { emitLiveSample(model: model, tokenizer: tokenizer, step: s, method: "Fine-tuning") }
+            if s % sampleEvery == 0 { emitLiveSample(model: model, tokenizer: tokenizer, step: s, method: String(localized: "trainer.progress.finetuning", defaultValue: "Fine-tuning", comment: "Progress title for fine-tuning run")) }
 
             if s % checkpointEvery == 0 {
                 saveCheckpoint(model: model, config: config, tokenizer: tokenizer, step: s, loss: lossValue,
@@ -360,9 +360,9 @@ final class Trainer: ObservableObject {
         publish {
             self.isTraining = false
             self.runCompleted = !self.stopRequested
-            self.runMethod = model.hasLoRA ? "SFT (LoRA)" : "SFT (full)"
-            self.statusMessage = self.stopRequested ? "Stopped at step \(self.step) — progress saved"
-                : "Fine-tuning done" + (final != nil ? " — checkpoint saved" : "")
+            self.runMethod = model.hasLoRA ? String(localized: "trainer.mode.sft-lora", defaultValue: "SFT (LoRA)", comment: "Mode label for supervised fine-tuning with LoRA") : String(localized: "trainer.mode.sft-full", defaultValue: "SFT (full)", comment: "Mode label for full supervised fine-tuning")
+            self.statusMessage = self.stopRequested ? String(format: String(localized: "trainer.status.stopped-at-step-progress-saved-sft", defaultValue: "Stopped at step %d — progress saved", comment: "SFT completion message when stopped and progress is saved"), self.step)
+                : String(localized: "trainer.status.finetuning-done", defaultValue: "Fine-tuning done", comment: "Completion message when fine-tuning finishes") + (final != nil ? " " + String(localized: "trainer.status.checkpoint-saved-suffix-finetuning", defaultValue: "— checkpoint saved", comment: "Suffix indicating checkpoint was saved after fine-tuning") : "")
         }
     }
 
@@ -370,10 +370,10 @@ final class Trainer: ObservableObject {
 
     func startDPO(trainConfig tc: TrainConfig, examples: [PreferenceExample], hardware: HardwareInfo) {
         guard !isTraining, let policyBase = model, let tokenizer = tokenizer else {
-            publish { self.errorMessage = "DPO needs a fine-tuned model in memory first — run SFT, then DPO." }
+            publish { self.errorMessage = String(localized: "trainer.error.dpo-requires-finetuned-model", defaultValue: "DPO needs a fine-tuned model in memory first — run SFT, then DPO.", comment: "Guidance error when DPO starts without a fine-tuned model loaded") }
             return
         }
-        beginSession(mode: .dpo, maxSteps: tc.maxSteps, statusMessage: "Preparing DPO…")
+        beginSession(mode: .dpo, maxSteps: tc.maxSteps, statusMessage: String(localized: "trainer.status.preparing-dpo", defaultValue: "Preparing DPO…", comment: "Status text while preparing DPO run"))
         queue.async {
             self.runDPO(tc, examples, policyBase, tokenizer, hardware)
             self.doneSemaphore.signal()
@@ -399,7 +399,7 @@ final class Trainer: ObservableObject {
                           chosen: (arrs[0], arrs[1], arrs[2]), rejected: (arrs[3], arrs[4], arrs[5]), beta: beta)]
         }
 
-        publish { self.statusMessage = "DPO training" }
+        publish { self.statusMessage = String(localized: "trainer.progress.dpo-training", defaultValue: "DPO training", comment: "Progress title for DPO training run") }
         let startTime = Date(); var lastReport = Date()
 
         for s in 1 ... tc.maxSteps {
@@ -434,9 +434,9 @@ final class Trainer: ObservableObject {
         publish {
             self.isTraining = false
             self.runCompleted = !self.stopRequested
-            self.runMethod = "DPO"
-            self.statusMessage = self.stopRequested ? "Stopped at step \(self.step) — progress saved"
-                : "DPO done" + (final != nil ? " — checkpoint saved" : "")
+            self.runMethod = String(localized: "trainer.mode.dpo", defaultValue: "DPO", comment: "Mode label for direct preference optimization run")
+            self.statusMessage = self.stopRequested ? String(format: String(localized: "trainer.status.stopped-at-step-progress-saved-dpo", defaultValue: "Stopped at step %d — progress saved", comment: "DPO completion message when stopped and progress is saved"), self.step)
+                : String(localized: "trainer.status.dpo-done", defaultValue: "DPO done", comment: "Completion message when DPO run finishes") + (final != nil ? " " + String(localized: "trainer.status.checkpoint-saved-suffix-dpo", defaultValue: "— checkpoint saved", comment: "Suffix indicating checkpoint was saved after DPO") : "")
         }
     }
 
@@ -521,7 +521,7 @@ final class Trainer: ObservableObject {
         sampleHistory = session.samples.map { TrainingSample(step: $0.step, text: $0.text, method: $0.method, createdAt: $0.createdAt) }
         lastCheckpointDir = session.lastCheckpointURL
         liveSample = sampleHistory.last?.text ?? ""
-        statusMessage = session.step > 0 ? "Restored \(session.method) run at step \(session.step)" : "Idle"
+        statusMessage = session.step > 0 ? String(format: String(localized: "trainer.status.restored-run-at-step", defaultValue: "Restored %@ run at step %d", comment: "Status text after restoring a training session and step"), "\(session.method)", session.step) : String(localized: "trainer.state.idle-restored", defaultValue: "Idle", comment: "Trainer state label set to idle after restoration path")
     }
 
     /// Clears the dashboard when there is no saved session for a mode.
@@ -533,7 +533,7 @@ final class Trainer: ObservableObject {
         runCompleted = false
         step = 0; maxSteps = 0; trainLoss = 0; valLoss = 0; tokensPerSec = 0; currentLR = 0
         lossHistory = []; sampleHistory = []; liveSample = ""; lastCheckpointDir = nil
-        statusMessage = "Idle"
+        statusMessage = String(localized: "trainer.state.idle-reset", defaultValue: "Idle", comment: "Trainer state label set to idle on reset path")
     }
 
     /// Drops the in-memory model, e.g. when the studio switches to another model
@@ -554,14 +554,14 @@ final class Trainer: ObservableObject {
             self.trainLoss = 0
             self.valLoss = 0
             self.lastCheckpointDir = nil
-            self.statusMessage = "Idle"
+            self.statusMessage = String(localized: "trainer.state.idle-default", defaultValue: "Idle", comment: "Default trainer state label when no run is active")
         }
     }
 
     func loadForSampling(model: GPT, tokenizer: Tokenizer) {
         self.model = model
         self.tokenizer = tokenizer
-        publish { self.hasModel = true; self.runIsLoRA = model.hasLoRA; self.statusMessage = "Loaded checkpoint" }
+        publish { self.hasModel = true; self.runIsLoRA = model.hasLoRA; self.statusMessage = String(localized: "trainer.status.loaded-checkpoint", defaultValue: "Loaded checkpoint", comment: "Status text when checkpoint loads successfully") }
     }
 
     // MARK: - Chat
@@ -700,7 +700,7 @@ final class Trainer: ObservableObject {
             publish { self.lastCheckpointDir = dir }
             return dir
         } catch {
-            publish { self.errorMessage = "Couldn't save checkpoint: \(error.localizedDescription)" }
+            publish { self.errorMessage = String(format: String(localized: "trainer.error.could-not-save-checkpoint", defaultValue: "Couldn't save checkpoint: %@", comment: "Error message when saving checkpoint fails"), "\(error.localizedDescription)") }
             return nil
         }
     }
