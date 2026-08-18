@@ -134,15 +134,19 @@ struct TrainingView: View {
                         defaultValue: "Restored session · %@",
                         comment: "Status text showing restored training session summary"
                     ), "\(session.summary)")).font(.callout.weight(.medium))
+                    let savedAt = session.updatedAt.formatted(date: .abbreviated, time: .shortened)
+                    let datasetSuffix = session.datasetName.map { datasetName in
+                        String(format: String(
+                            localized: "training-view.session.dataset-suffix",
+                            defaultValue: "· %@",
+                            comment: "Optional suffix showing dataset name in restored session status"
+                        ), datasetName)
+                    } ?? ""
                     Text(String(format: String(
                         localized: "training-view.session.saved-at-with-dataset-optional",
                         defaultValue: "Saved %@%@",
                         comment: "Status text showing saved timestamp and optional dataset name"
-                    ), "\(session.updatedAt.formatted(date: .abbreviated, time: .shortened))", "\(session.datasetName.map { String(format: String(
-                        localized: "training-view.session.dataset-suffix",
-                        defaultValue: "· %@",
-                        comment: "Optional suffix showing dataset name in restored session status"
-                    ), $0) } ?? "")"))
+                    ), savedAt, datasetSuffix))
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
