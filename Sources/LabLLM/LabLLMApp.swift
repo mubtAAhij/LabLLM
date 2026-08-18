@@ -31,8 +31,16 @@ struct LabLLMApp: App {
         .windowStyle(.titleBar)
         .commands {
             CommandGroup(after: .appInfo) {
-                Button(String(localized: "app.menu.show-welcome-screen", defaultValue: "Show Welcome Screen", comment: "Menu command title to open the welcome screen")) { NotificationCenter.default.post(name: .showWelcome, object: nil) }
-                Button(String(localized: "app.menu.replay-tutorial", defaultValue: "Replay Tutorial", comment: "Menu command title to replay onboarding tutorial")) { NotificationCenter.default.post(name: .showTutorial, object: nil) }
+                Button(String(
+                    localized: "app.menu.show-welcome-screen",
+                    defaultValue: "Show Welcome Screen",
+                    comment: "Menu command title to open the welcome screen"
+                )) { NotificationCenter.default.post(name: .showWelcome, object: nil) }
+                Button(String(
+                    localized: "app.menu.replay-tutorial",
+                    defaultValue: "Replay Tutorial",
+                    comment: "Menu command title to replay onboarding tutorial"
+                )) { NotificationCenter.default.post(name: .showTutorial, object: nil) }
             }
         }
     }
