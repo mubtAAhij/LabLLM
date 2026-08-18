@@ -8,9 +8,9 @@ enum ConversationImportError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noValidRows: return "No rows in this file matched a recognized conversation format."
-        case .network(let r): return "Network error: \(r)"
-        case .badStatus(let code): return "Server returned status \(code). Check the repo/file path."
+        case .noValidRows: return String(localized: "conversation-import.error.no-valid-rows", defaultValue: "No rows in this file matched a recognized conversation format.", comment: "Error shown when no recognized conversation rows are found")
+        case .network(let r): return String(format: String(localized: "conversation-import.error.network", defaultValue: "Network error: %@", comment: "Network error with reason during conversation import"), "\(r)")
+        case .badStatus(let code): return String(format: String(localized: "conversation-import.error.bad-status", defaultValue: "Server returned status %d. Check the repo/file path.", comment: "HTTP status error when importing conversation data"), code)
         }
     }
 }
@@ -150,7 +150,7 @@ enum ConversationImport {
     static func parseIMessageDatabase(at url: URL) throws -> [[ChatMessage]] {
         var database: OpaquePointer?
         guard sqlite3_open_v2(url.path, &database, SQLITE_OPEN_READONLY, nil) == SQLITE_OK, let database else {
-            throw ConversationImportError.network("Couldn't open chat.db. In System Settings, grant LabLLM Full Disk Access, then choose ~/Library/Messages/chat.db.")
+            throw ConversationImportError.network(String(localized: "conversation-import.messages-db.error.open", defaultValue: "Couldn't open chat.db. In System Settings, grant LabLLM Full Disk Access, then choose ~/Library/Messages/chat.db.", comment: "Error when Messages chat database cannot be opened"))
         }
         defer { sqlite3_close(database) }
 
@@ -164,7 +164,7 @@ enum ConversationImport {
         """
         var statement: OpaquePointer?
         guard sqlite3_prepare_v2(database, query, -1, &statement, nil) == SQLITE_OK, let statement else {
-            throw ConversationImportError.network("Couldn't read messages from this chat database.")
+            throw ConversationImportError.network(String(localized: "conversation-import.messages-db.error.read", defaultValue: "Couldn't read messages from this chat database.", comment: "Error when reading from selected chat database fails"))
         }
         defer { sqlite3_finalize(statement) }
 
@@ -213,7 +213,7 @@ enum HFDownloader {
 
     static func download(repo: String, filePath: String, progress: @escaping @Sendable (Int64, Int64?) -> Void = { _, _ in }) async throws -> String {
         guard let url = url(repo: repo, filePath: filePath) else {
-            throw ConversationImportError.network("Invalid repo or file path.")
+            throw ConversationImportError.network(String(localized: "conversation-import.github.error.invalid-path", defaultValue: "Invalid repo or file path.", comment: "Error for invalid GitHub repo or file path"))
         }
         let bytes: URLSession.AsyncBytes
         let response: URLResponse
@@ -237,7 +237,7 @@ enum HFDownloader {
         }
         progress(downloaded, expected ?? downloaded)
         guard let text = String(data: data, encoding: .utf8) else {
-            throw ConversationImportError.network("Downloaded file wasn't valid UTF-8 text (it may be a Parquet/Arrow file rather than raw JSONL — try a different file path).")
+            throw ConversationImportError.network(String(localized: "conversation-import.github.error.invalid-utf8", defaultValue: "Downloaded file wasn't valid UTF-8 text (it may be a Parquet/Arrow file rather than raw JSONL — try a different file path).", comment: "Error when downloaded dataset is not valid UTF-8 text"))
         }
         return text
     }
