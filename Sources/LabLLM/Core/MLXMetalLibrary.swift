@@ -10,9 +10,9 @@ enum MLXMetalLibrary {
         var errorDescription: String? {
             switch self {
             case .bundledLibraryMissing:
-                return "The bundled MLX Metal library is missing. Rebuild the app with Sources/LabLLM/Resources/mlx.metallib included."
+                return String(localized: "core.mlx-metal-library.bundled-library-missing", defaultValue: "The bundled MLX Metal library is missing. Rebuild the app with Sources/LabLLM/Resources/mlx.metallib included.", comment: "Error shown when packaged MLX metallib resource is not found")
             case .executableDirectoryMissing:
-                return "Couldn't locate the app executable folder for MLX Metal setup."
+                return String(localized: "core.mlx-metal-library.executable-folder-missing", defaultValue: "Couldn't locate the app executable folder for MLX Metal setup.", comment: "Error shown when executable directory cannot be determined during MLX setup")
             }
         }
     }
