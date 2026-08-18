@@ -7,7 +7,7 @@ final class DataImportState: ObservableObject {
     @Published var detail = ""
     @Published var completedRows = 0
     @Published var totalRows = 0
-    @Published var unit = "rows"
+    @Published var unit = String(localized: "data-import.unit.rows", defaultValue: "rows", comment: "Unit label for imported row counts")
     @Published var queuedTitles: [String] = []
     @Published var isCancelling = false
 
@@ -60,20 +60,20 @@ struct DataImportProgressPanel: View {
                     }
                     .buttonStyle(.plain)
                     .disabled(state.isCancelling)
-                    .help("Cancel import")
+                    .help(String(localized: "data-import.action.cancel-import", defaultValue: "Cancel import", comment: "Button title to cancel an active data import"))
                 }
                 ProgressView(value: state.progress)
                     .tint(WorkbenchTheme.accent)
                 HStack {
-                    Text("\(state.completedRows.formatted()) / \(state.totalRows.formatted()) \(state.unit)")
+                    Text(String(format: String(localized: "data-import.progress.completed-over-total-unit", defaultValue: "%@ / %@ %@", comment: "Progress line showing completed rows over total rows with unit suffix"), "\(state.completedRows.formatted())", "\(state.totalRows.formatted())", "\(state.unit)"))
                     Spacer()
                     Text(state.percentText)
                     if !state.queuedTitles.isEmpty { Divider().frame(height: 10) }
-                    if !state.queuedTitles.isEmpty { Text("\(state.queuedTitles.count) queued") }
+                    if !state.queuedTitles.isEmpty { Text(String(format: String(localized: "data-import.progress.queued-count", defaultValue: "%d queued", comment: "Status showing number of queued import items"), state.queuedTitles.count)) }
                 }
                 .font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
                 if let next = state.queuedTitles.first {
-                    Text("Next: \(next)").font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                    Text(String(format: String(localized: "data-import.progress.next-item", defaultValue: "Next: %@", comment: "Status line prefix for the next queued item name"), "\(next)")).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
                 }
             }
             .padding(14)
