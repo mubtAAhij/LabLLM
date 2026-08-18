@@ -13,7 +13,7 @@ struct DatasetCardPreview: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
                 if blocks.isEmpty {
-                    Text("This dataset has no README to display.")
+                    Text(String(localized: "dataset-card-preview.empty-readme", defaultValue: "This dataset has no README to display.", comment: "Placeholder message when dataset readme content is unavailable"))
                         .font(.callout).foregroundStyle(.secondary)
                 } else {
                     ForEach(blocks) { block in view(for: block) }
