@@ -70,11 +70,11 @@ struct InstalledDatasetsPanel: View {
             localized: "installed-datasets.delete-dialog.title",
             defaultValue: "Delete %@?",
             comment: "Delete dataset dialog title with dataset name"
-        ), "\(deleting?.name ?? String(
+        ), deleting?.name ?? String(
             localized: "installed-datasets.delete-dialog.fallback-name",
             defaultValue: "dataset",
             comment: "Fallback dataset name used in delete dialog when dataset name is unavailable"
-        ))"), isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {
+        )), isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {
             Button(String(
                 localized: "installed-datasets.delete-dialog.confirm",
                 defaultValue: "Delete",
