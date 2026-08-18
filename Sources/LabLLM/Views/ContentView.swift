@@ -61,11 +61,31 @@ enum NavSection: String, CaseIterable, Identifiable {
     }
     var group: String {
         switch self {
-        case .welcome: return "HOME"
-        case .model, .dataset, .recipes, .fineTuneData: return "BUILD"
-        case .training, .sampling, .chat, .checkpoints: return "RUN"
-        case .xray, .embeddings, .estimator, .hardware: return "ANALYZE"
-        case .server, .roadmap, .settings: return "SYSTEM"
+        case .welcome: return String(
+            localized: "content.sidebar.group.home",
+            defaultValue: "HOME",
+            comment: "Sidebar section header for home-related pages"
+        )
+        case .model, .dataset, .recipes, .fineTuneData: return String(
+            localized: "content.sidebar.group.build",
+            defaultValue: "BUILD",
+            comment: "Sidebar section header for build-related pages"
+        )
+        case .training, .sampling, .chat, .checkpoints: return String(
+            localized: "content.sidebar.group.run",
+            defaultValue: "RUN",
+            comment: "Sidebar section header for run-related pages"
+        )
+        case .xray, .embeddings, .estimator, .hardware: return String(
+            localized: "content.sidebar.group.analyze",
+            defaultValue: "ANALYZE",
+            comment: "Sidebar section header for analysis-related pages"
+        )
+        case .server, .roadmap, .settings: return String(
+            localized: "content.sidebar.group.system",
+            defaultValue: "SYSTEM",
+            comment: "Sidebar section header for system pages"
+        )
         }
     }
     /// Modes change presentation and controls. Core creation workflows stay available
@@ -182,7 +202,27 @@ struct ContentView: View {
         }
     }
 
-    private var navigationGroups: [String] { ["HOME", "BUILD", "RUN", "ANALYZE", "SYSTEM"] }
+    private var navigationGroups: [String] { [String(
+        localized: "content.sidebar.group.home-filter",
+        defaultValue: "HOME",
+        comment: "Filter group label for home section"
+    ), String(
+        localized: "content.sidebar.group.build-filter",
+        defaultValue: "BUILD",
+        comment: "Filter group label for build section"
+    ), String(
+        localized: "content.sidebar.group.run-filter",
+        defaultValue: "RUN",
+        comment: "Filter group label for run section"
+    ), String(
+        localized: "content.sidebar.group.analyze-filter",
+        defaultValue: "ANALYZE",
+        comment: "Filter group label for analyze section"
+    ), String(
+        localized: "content.sidebar.group.system-filter",
+        defaultValue: "SYSTEM",
+        comment: "Filter group label for system section"
+    )] }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -197,7 +237,11 @@ struct ContentView: View {
             ToolbarItem(placement: .automatic) { modeBadge }
             ToolbarItem(placement: .automatic) {
                 Button { showTutorial() } label: { Image(systemName: "questionmark.circle") }
-                    .help("Replay tutorial")
+                    .help(String(
+                        localized: "content.actions.replay-tutorial",
+                        defaultValue: "Replay tutorial",
+                        comment: "Action title to replay onboarding tutorial"
+                    ))
             }
         }
         .onChange(of: prefs.mode) { _ in
@@ -291,7 +335,11 @@ struct ContentView: View {
     private var modeBadge: some View {
         HStack(spacing: 6) {
             Image(systemName: prefs.mode.icon).font(.caption)
-            Text(prefs.mode.label + " mode").font(.caption.weight(.medium))
+            Text(prefs.mode.label + " " + String(
+                localized: "content.status.mode-suffix",
+                defaultValue: "mode",
+                comment: "Suffix appended to mode name in status text"
+            )).font(.caption.weight(.medium))
         }
         .padding(.horizontal, 9).padding(.vertical, 5)
         .background(WorkbenchTheme.accent.opacity(0.12), in: Capsule())
@@ -302,8 +350,16 @@ struct ContentView: View {
             HStack(spacing: 8) {
                 ProgressView(value: trainer.progress).controlSize(.small)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("\(Int((trainer.progress * 100).rounded()))% · Step \(trainer.step)/\(trainer.maxSteps)").font(.caption).monospacedDigit()
-                    Text(String(format: "loss %.3f", trainer.trainLoss))
+                    Text(String(format: String(
+                        localized: "content.training.status.progress-step",
+                        defaultValue: "%d%% · Step %d/%d",
+                        comment: "Training status showing progress percent and current step"
+                    ), Int((trainer.progress * 100).rounded()), trainer.step, trainer.maxSteps)).font(.caption).monospacedDigit()
+                    Text(String(format: String(
+                        localized: "content.training.status.loss-format",
+                        defaultValue: "loss %.3f",
+                        comment: "Training status format string for loss value"
+                    ), trainer.trainLoss))
                         .font(.caption2).foregroundStyle(.secondary).monospacedDigit()
                 }
                 Spacer()

@@ -15,8 +15,16 @@ struct XRayView: View {
             if !trainer.hasModel {
                 // The enclosing stack is leading-aligned, so the placeholder needs the
                 // full width to sit in the middle of the page rather than hugging the edge.
-                ContentUnavailableView("No model to inspect yet", systemImage: "eye",
-                    description: Text("Train or load a model first."))
+                ContentUnavailableView(String(
+                    localized: "xray-view.empty-state.no-model-title",
+                    defaultValue: "No model to inspect yet",
+                    comment: "Title shown when no model is available for X-Ray inspection"
+                ), systemImage: "eye",
+                    description: Text(String(
+                        localized: "xray-view.empty-state.no-model-message",
+                        defaultValue: "Train or load a model first.",
+                        comment: "Instruction shown when no model is loaded for X-Ray"
+                    )))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 HSplitView {
@@ -31,8 +39,16 @@ struct XRayView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("X-Ray").font(.title2.bold())
-                    Text("Click any generated token to see the model's real probability, entropy, and alternatives.")
+                    Text(String(
+                        localized: "xray-view.panel.title",
+                        defaultValue: "X-Ray",
+                        comment: "Panel title for token probability inspection view"
+                    )).font(.title2.bold())
+                    Text(String(
+                        localized: "xray-view.panel.subtitle",
+                        defaultValue: "Click any generated token to see the model's real probability, entropy, and alternatives.",
+                        comment: "Help text describing X-Ray token inspection behavior"
+                    ))
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
@@ -40,14 +56,38 @@ struct XRayView: View {
                     trainer.xrayGenerate(prompt: prompt, params: SamplingParams(
                         maxTokens: Int(maxTokens), temperature: Float(temperature), topK: Int(topK)))
                 } label: {
-                    Label(trainer.isXraying ? "Generating…" : "Generate", systemImage: "sparkles")
+                    Label(trainer.isXraying ? String(
+                        localized: "xray-view.action.generating",
+                        defaultValue: "Generating…",
+                        comment: "Button label shown while generation is in progress"
+                    ) : String(
+                        localized: "xray-view.action.generate",
+                        defaultValue: "Generate",
+                        comment: "Button label to start token generation"
+                    ), systemImage: "sparkles")
                 }.buttonStyle(WorkbenchPrimaryButtonStyle()).disabled(trainer.isXraying)
             }
             HStack(spacing: 16) {
-                TextField("Prompt", text: $prompt).textFieldStyle(.roundedBorder).frame(maxWidth: 220)
-                slider("Tokens", $maxTokens, 5...150, "%.0f")
-                slider("Temp", $temperature, 0.1...2.0, "%.2f")
-                slider("Top-k", $topK, 0...200, "%.0f")
+                TextField(String(
+                    localized: "xray-view.field.prompt",
+                    defaultValue: "Prompt",
+                    comment: "Label for prompt input field"
+                ), text: $prompt).textFieldStyle(.roundedBorder).frame(maxWidth: 220)
+                slider(String(
+                    localized: "xray-view.field.tokens",
+                    defaultValue: "Tokens",
+                    comment: "Label for token count control"
+                ), $maxTokens, 5...150, "%.0f")
+                slider(String(
+                    localized: "xray-view.field.temperature-short",
+                    defaultValue: "Temp",
+                    comment: "Short label for temperature control"
+                ), $temperature, 0.1...2.0, "%.2f")
+                slider(String(
+                    localized: "xray-view.field.top-k",
+                    defaultValue: "Top-k",
+                    comment: "Label for top-k sampling control"
+                ), $topK, 0...200, "%.0f")
             }
         }.padding()
     }
@@ -71,19 +111,43 @@ struct XRayView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 if let step = trainer.xraySteps.first(where: { $0.id == selected }) ?? trainer.xraySteps.last {
-                    Text("Selected token").font(.caption).foregroundStyle(.secondary)
-                    Text("\"\(step.chosenText)\"").font(.title2.monospaced().bold())
+                    Text(String(
+                        localized: "xray-view.selected-token.title",
+                        defaultValue: "Selected token",
+                        comment: "Heading for selected token details panel"
+                    )).font(.caption).foregroundStyle(.secondary)
+                    Text(String(format: String(
+                        localized: "xray-view.selected-token.quoted-token",
+                        defaultValue: "\"%@\"",
+                        comment: "Quoted selected token text in details panel"
+                    ), "\(step.chosenText)")).font(.title2.monospaced().bold())
 
                     HStack(spacing: 24) {
-                        stat("Probability", String(format: "%.1f%%", step.chosenProb * 100))
-                        stat("Entropy", String(format: "%.2f nats", step.entropy))
+                        stat(String(
+                            localized: "xray-view.selected-token.probability",
+                            defaultValue: "Probability",
+                            comment: "Label for selected token probability metric"
+                        ), String(format: "%.1f%%", step.chosenProb * 100))
+                        stat(String(
+                            localized: "xray-view.selected-token.entropy",
+                            defaultValue: "Entropy",
+                            comment: "Label for selected token entropy metric"
+                        ), String(format: "%.2f nats", step.entropy))
                     }
 
-                    Text("TOP CANDIDATES").font(.caption.bold()).foregroundStyle(.secondary).padding(.top, 8)
+                    Text(String(
+                        localized: "xray-view.selected-token.top-candidates-header",
+                        defaultValue: "TOP CANDIDATES",
+                        comment: "Header for top candidate token list"
+                    )).font(.caption.bold()).foregroundStyle(.secondary).padding(.top, 8)
                     VStack(spacing: 6) {
                         ForEach(step.candidates) { c in
                             HStack {
-                                Text("\"\(c.tokenText)\"").font(.callout.monospaced())
+                                Text(String(format: String(
+                                    localized: "xray-view.selected-token.candidate.quoted-token",
+                                    defaultValue: "\"%@\"",
+                                    comment: "Quoted candidate token text in top candidates list"
+                                ), "\(c.tokenText)")).font(.callout.monospaced())
                                     .foregroundStyle(c.tokenText == step.chosenText ? Color.accentColor : .primary)
                                 Spacer()
                                 GeometryReader { geo in
@@ -99,7 +163,15 @@ struct XRayView: View {
                         }
                     }
                 } else {
-                    ContentUnavailableView("No token selected", systemImage: "hand.tap", description: Text("Generate, then click a token on the left."))
+                    ContentUnavailableView(String(
+                        localized: "xray-view.selected-token.empty-title",
+                        defaultValue: "No token selected",
+                        comment: "Placeholder title when no generated token is selected"
+                    ), systemImage: "hand.tap", description: Text(String(
+                        localized: "xray-view.selected-token.empty-message",
+                        defaultValue: "Generate, then click a token on the left.",
+                        comment: "Instruction for selecting a token after generation"
+                    )))
                         .frame(maxWidth: .infinity, alignment: .center)
                 }
             }.padding()

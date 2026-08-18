@@ -14,7 +14,11 @@ struct HardwareInfo {
     static func current() -> HardwareInfo {
         let chip = sysctlString("machdep.cpu.brand_string")
             ?? sysctlString("hw.model")
-            ?? "Unknown"
+            ?? String(
+                localized: "core.hardware.unknown",
+                defaultValue: "Unknown",
+                comment: "Fallback text when hardware information is unavailable"
+            )
         let mem = Double(ProcessInfo.processInfo.physicalMemory) / 1_073_741_824.0
         let cores = ProcessInfo.processInfo.processorCount
         let perf = sysctlInt("hw.perflevel0.logicalcpu") ?? 0

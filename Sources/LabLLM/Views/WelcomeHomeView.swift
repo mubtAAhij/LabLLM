@@ -4,10 +4,42 @@ struct WelcomeHomeView: View {
     @EnvironmentObject var prefs: Preferences
 
     private let primaryActions: [(String, String, String, NavSection)] = [
-        ("Design model", "Choose an architecture and scale.", "cube.transparent", .model),
-        ("Pre-training data", "Install a corpus and keep it on disk.", "text.book.closed", .dataset),
-        ("Fine-tuning data", "Bring in conversations and instructions.", "tray.full", .fineTuneData),
-        ("Checkpoints", "Continue, inspect, or quantize this model's runs.", "cube.box", .checkpoints)
+        (String(
+            localized: "welcome-home.quickstart.design-model.title",
+            defaultValue: "Design model",
+            comment: "Quickstart card title for model design"
+        ), String(
+            localized: "welcome-home.quickstart.design-model.subtitle",
+            defaultValue: "Choose an architecture and scale.",
+            comment: "Quickstart card subtitle for model design"
+        ), "cube.transparent", .model),
+        (String(
+            localized: "welcome-home.quickstart.pretraining-data.title",
+            defaultValue: "Pre-training data",
+            comment: "Quickstart card title for pre-training data"
+        ), String(
+            localized: "welcome-home.quickstart.pretraining-data.subtitle",
+            defaultValue: "Install a corpus and keep it on disk.",
+            comment: "Quickstart card subtitle for pre-training data"
+        ), "text.book.closed", .dataset),
+        (String(
+            localized: "welcome-home.quickstart.finetuning-data.title",
+            defaultValue: "Fine-tuning data",
+            comment: "Quickstart card title for fine-tuning data"
+        ), String(
+            localized: "welcome-home.quickstart.finetuning-data.subtitle",
+            defaultValue: "Bring in conversations and instructions.",
+            comment: "Quickstart card subtitle for fine-tuning data"
+        ), "tray.full", .fineTuneData),
+        (String(
+            localized: "welcome-home.quickstart.checkpoints.title",
+            defaultValue: "Checkpoints",
+            comment: "Quickstart card title for checkpoints"
+        ), String(
+            localized: "welcome-home.quickstart.checkpoints.subtitle",
+            defaultValue: "Continue, inspect, or quantize this model's runs.",
+            comment: "Quickstart card subtitle for checkpoints"
+        ), "cube.box", .checkpoints)
     ]
 
     var body: some View {
@@ -42,8 +74,16 @@ struct WelcomeHomeView: View {
                 .background(WorkbenchTheme.accent, in: RoundedRectangle(cornerRadius: WorkbenchTheme.cornerRadius, style: .continuous))
             VStack(alignment: .leading, spacing: 5) {
                 Text("LABLLM STUDIO").font(.caption.weight(.bold)).foregroundStyle(WorkbenchTheme.accent)
-                Text("Start a local language-model run.").font(.system(size: 30, weight: .bold)).foregroundStyle(.white)
-                Text("Design a model, bring in data, and train on this Mac.").font(.callout).foregroundStyle(.white.opacity(0.68))
+                Text(String(
+                    localized: "welcome-home.hero.title",
+                    defaultValue: "Start a local language-model run.",
+                    comment: "Welcome hero headline"
+                )).font(.system(size: 30, weight: .bold)).foregroundStyle(.white)
+                Text(String(
+                    localized: "welcome-home.hero.subtitle",
+                    defaultValue: "Design a model, bring in data, and train on this Mac.",
+                    comment: "Welcome hero subtitle"
+                )).font(.callout).foregroundStyle(.white.opacity(0.68))
             }
             Spacer()
         }
@@ -51,11 +91,31 @@ struct WelcomeHomeView: View {
 
     private var statusBand: some View {
         HStack(spacing: 0) {
-            status("Mode", value: prefs.mode.label, icon: prefs.mode.icon, color: WorkbenchTheme.accent)
+            status(String(
+                localized: "welcome-home.info.mode.label",
+                defaultValue: "Mode",
+                comment: "Label for mode info row"
+            ), value: prefs.mode.label, icon: prefs.mode.icon, color: WorkbenchTheme.accent)
             Divider().frame(height: 44)
-            status("Storage", value: "Local", icon: "internaldrive", color: Color(red: 0.16, green: 0.55, blue: 0.45))
+            status(String(
+                localized: "welcome-home.info.storage.label",
+                defaultValue: "Storage",
+                comment: "Label for storage info row"
+            ), value: String(
+                localized: "welcome-home.info.storage.value.local",
+                defaultValue: "Local",
+                comment: "Value indicating local storage"
+            ), icon: "internaldrive", color: Color(red: 0.16, green: 0.55, blue: 0.45))
             Divider().frame(height: 44)
-            status("Privacy", value: "Offline-ready", icon: "lock.shield", color: Color(red: 0.75, green: 0.42, blue: 0.18))
+            status(String(
+                localized: "welcome-home.info.privacy.label",
+                defaultValue: "Privacy",
+                comment: "Label for privacy info row"
+            ), value: String(
+                localized: "welcome-home.info.privacy.value.offline-ready",
+                defaultValue: "Offline-ready",
+                comment: "Value indicating offline privacy mode"
+            ), icon: "lock.shield", color: Color(red: 0.75, green: 0.42, blue: 0.18))
         }
         .padding(.vertical, 14)
         .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: WorkbenchTheme.cornerRadius, style: .continuous))
@@ -64,7 +124,11 @@ struct WelcomeHomeView: View {
 
     private var actions: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Start here").font(.headline).foregroundStyle(.white)
+            Text(String(
+                localized: "welcome-home.section.start-here",
+                defaultValue: "Start here",
+                comment: "Section heading for getting started cards"
+            )).font(.headline).foregroundStyle(.white)
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
                 ForEach(Array(primaryActions.enumerated()), id: \.element.0) { index, action in
                     actionButton(action, number: index + 1)
@@ -76,13 +140,29 @@ struct WelcomeHomeView: View {
     private var resumeBand: some View {
         HStack {
             VStack(alignment: .leading, spacing: 3) {
-                Text("Continue your work").font(.headline).foregroundStyle(.white)
-                Text("Open Training to run a configured model, or Sampling to work with a model already in memory.")
+                Text(String(
+                    localized: "welcome-home.section.continue-work.title",
+                    defaultValue: "Continue your work",
+                    comment: "Section heading for continue work area"
+                )).font(.headline).foregroundStyle(.white)
+                Text(String(
+                    localized: "welcome-home.section.continue-work.subtitle",
+                    defaultValue: "Open Training to run a configured model, or Sampling to work with a model already in memory.",
+                    comment: "Section subtitle explaining continue work options"
+                ))
                     .font(.callout).foregroundStyle(.white.opacity(0.65))
             }
             Spacer()
-            compactAction("Training", icon: "waveform.path.ecg", section: .training)
-            compactAction("Sampling", icon: "text.cursor", section: .sampling)
+            compactAction(String(
+                localized: "welcome-home.actions.training",
+                defaultValue: "Training",
+                comment: "Button title to open training workflow"
+            ), icon: "waveform.path.ecg", section: .training)
+            compactAction(String(
+                localized: "welcome-home.actions.sampling",
+                defaultValue: "Sampling",
+                comment: "Button title to open sampling workflow"
+            ), icon: "text.cursor", section: .sampling)
         }
         .padding(.top, 8)
     }
@@ -106,7 +186,11 @@ struct WelcomeHomeView: View {
                     Text(action.1).font(.caption).foregroundStyle(.white.opacity(0.63)).fixedSize(horizontal: false, vertical: true)
                 }
                 HStack {
-                    Text("Open workspace").font(.caption.weight(.semibold)).foregroundStyle(action.3.iconColor)
+                    Text(String(
+                        localized: "welcome-home.actions.open-workspace",
+                        defaultValue: "Open workspace",
+                        comment: "Button title to open the workspace"
+                    )).font(.caption.weight(.semibold)).foregroundStyle(action.3.iconColor)
                     Spacer()
                     Image(systemName: "arrow.up.right").font(.caption.weight(.bold)).foregroundStyle(action.3.iconColor)
                 }

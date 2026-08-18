@@ -11,11 +11,36 @@ enum CheckpointError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .directoryCreationFailed(let n): return "Couldn't create a folder for checkpoint '\(n)'."
-        case .weightsWriteFailed(let r): return "Couldn't write model weights: \(r)"
-        case .weightsReadFailed(let r): return "Couldn't read model weights: \(r)"
-        case .metaMissing: return "This checkpoint is missing its metadata file."
-        case .shapeMismatch(let r): return "Checkpoint doesn't match the current model shape: \(r)"
+        case .directoryCreationFailed(let n): return String(format: String(
+            localized: "checkpoint.error.directory-creation-failed",
+            defaultValue: "Couldn't create a folder for checkpoint '%@'.",
+            bundle: .main,
+            comment: "Error when creating checkpoint directory"
+        ), n)
+        case .weightsWriteFailed(let r): return String(format: String(
+            localized: "checkpoint.error.weights-write-failed",
+            defaultValue: "Couldn't write model weights: %@",
+            bundle: .main,
+            comment: "Error when writing checkpoint model weights"
+        ), r)
+        case .weightsReadFailed(let r): return String(format: String(
+            localized: "checkpoint.error.weights-read-failed",
+            defaultValue: "Couldn't read model weights: %@",
+            bundle: .main,
+            comment: "Error when reading checkpoint model weights"
+        ), r)
+        case .metaMissing: return String(
+            localized: "checkpoint.error.metadata-missing",
+            defaultValue: "This checkpoint is missing its metadata file.",
+            bundle: .main,
+            comment: "Error when checkpoint metadata file is missing"
+        )
+        case .shapeMismatch(let r): return String(format: String(
+            localized: "checkpoint.error.shape-mismatch",
+            defaultValue: "Checkpoint doesn't match the current model shape: %@",
+            bundle: .main,
+            comment: "Error when checkpoint shape does not match current model"
+        ), r)
         }
     }
 }
@@ -32,15 +57,20 @@ enum Checkpoint {
         var loss: Float
         var valLoss: Float
         var createdAt: Date
-        var method: String = "Pretraining"     // "Pretraining", "SFT (LoRA)", "SFT (full)", "DPO"
-        var datasetName: String? = nil
-        var loraRank: Int? = nil               // set when this checkpoint has LoRA adapters
-        var loraAlpha: Float? = nil
-        var quantizedBits: Int? = nil
-        var trainingConfig: TrainConfig? = nil
-        var optimizerStep: Int? = nil
-        var trainRNGState: UInt64? = nil
-        var checkpointFormatVersion: Int? = nil
+        var method: String = String(
+            localized: "checkpoint.meta.method.pretraining",
+            defaultValue: "Pretraining",
+            bundle: .main,
+            comment: "Default training method name"
+        )     // "Pretraining", "SFT (LoRA)", "SFT (full)", "DPO"
+        var datasetName: String?
+        var loraRank: Int?               // set when this checkpoint has LoRA adapters
+        var loraAlpha: Float?
+        var quantizedBits: Int?
+        var trainingConfig: TrainConfig?
+        var optimizerStep: Int?
+        var trainRNGState: UInt64?
+        var checkpointFormatVersion: Int?
     }
 
     /// Folder of the model workspace that is currently active. `ModelStore` keeps
@@ -88,7 +118,12 @@ enum Checkpoint {
         do {
             let metaData = try encoder.encode(meta)
             try metaData.write(to: dir.appendingPathComponent("meta.json"), options: .atomic)
-        } catch { throw CheckpointError.weightsWriteFailed("metadata: \(error.localizedDescription)") }
+        } catch { throw CheckpointError.weightsWriteFailed(String(format: String(
+            localized: "checkpoint.error.metadata-write-failed",
+            defaultValue: "metadata: %@",
+            bundle: .main,
+            comment: "Metadata write error detail prefix"
+        ), error.localizedDescription)) }
 
         if let hw = hardware {
             let card = ModelCard.generate(meta: meta, hardware: hw, datasetName: meta.datasetName, method: meta.method)
@@ -130,7 +165,12 @@ enum Checkpoint {
         do {
             return TrainingOptimizerSnapshot(arrays: try MLX.loadArrays(url: url), step: step)
         } catch {
-            throw CheckpointError.weightsReadFailed("optimizer: \(error.localizedDescription)")
+            throw CheckpointError.weightsReadFailed(String(format: String(
+                localized: "checkpoint.error.optimizer-read-failed",
+                defaultValue: "optimizer: %@",
+                bundle: .main,
+                comment: "Optimizer read error detail prefix"
+            ), error.localizedDescription))
         }
     }
 
@@ -173,7 +213,12 @@ enum Checkpoint {
         } catch { throw CheckpointError.weightsWriteFailed(error.localizedDescription) }
 
         var qMeta = meta
-        qMeta.method = meta.method + " · quantized \(bits)-bit"
+        qMeta.method = meta.method + String(format: String(
+            localized: "checkpoint.summary.quantized-bits",
+            defaultValue: " · quantized %d-bit",
+            bundle: .main,
+            comment: "Checkpoint summary quantization bits"
+        ), bits)
         qMeta.createdAt = Date()
         qMeta.quantizedBits = bits
         let encoder = JSONEncoder()

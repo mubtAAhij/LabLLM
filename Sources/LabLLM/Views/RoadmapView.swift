@@ -13,27 +13,567 @@ struct RoadmapView: View {
     @State private var query = ""
 
     private let groups: [Group] = [
-        .init(title: "Core App", status: .built, features: ["Local-first macOS app", "Apple Silicon + MLX acceleration", "Offline local project/model/dataset storage", "No account or subscription", "Light, dark, and custom themes", "Keyboard shortcuts, command palette, search, notifications", "Onboarding, Simple, Advanced, Expert modes", "Automatic updates and opt-in crash reporting"]),
-        .init(title: "Model Workspaces", status: .inProgress, features: ["Create, rename, duplicate, switch, and delete models from the top-left model menu", "Per-model architecture, hyperparameters, tokenizer choice and training data mix, saved to disk", "Per-model run sessions: loss curves, metrics and sample timelines restored on launch", "Per-model checkpoint folders so saved runs never mix between models", "Model notes, tags, archiving, import/export and templates", "Versioning, snapshots, automatic/manual backups, restore", "Reproducible project packages"]),
-        .init(title: "Model Builder", status: .built, features: ["GPT decoder architecture, presets from tiny to large", "Layers, hidden size, attention, KV heads, FFN, context, vocabulary", "Parameter, memory, disk, training-time and inference estimates", "Activation, normalization, RoPE, weight tying, bias, initialization, precision", "Validation, configuration preview/export", "Custom architecture and architecture visualization"]),
-        .init(title: "Recipes", status: .inProgress, features: ["Runnable recipes that set architecture, hyperparameters and tokenizer in one click", "Recipes install the dataset they need and open Training ready to start", "Prerequisite and estimated-runtime reporting per recipe", "Recipe chaining across pretraining, SFT and DPO", "Custom and shared recipes"]),
-        .init(title: "Tokenizer Lab", status: .inProgress, features: ["Character, byte, and BPE tokenizers", "WordPiece and Unigram", "Vocabulary and special-token editor", "Token visualization, probabilities, counts, compression and statistics", "Tokenizer testing, comparison, import/export", "Unicode, multilingual, and heatmap analysis"]),
-        .init(title: "Dataset Studio", status: .inProgress, features: ["Dataset browser, marketplace, preview, search, filters, sorting, metadata", "Installed dataset library saved to disk and reloaded on launch", "Dataset cards rendered from real READMEs with frontmatter stripped and HTML flattened", "Recommended datasets pinned first in every mode", "Rename, reveal, and delete installed datasets; per-dataset size and provenance", "Versioning, snapshots, checksums, duplication", "Splitting, train/validation/test, sampling, balancing, curriculum", "TXT, JSON, JSONL, CSV, Markdown, HTML, PDF, folders, drag-and-drop", "Hugging Face, custom, conversation, instruction, preference, code and math imports"]),
-        .init(title: "Data Quality", status: .planned, features: ["Exact and near-duplicate detection", "Normalization, encoding, HTML and boilerplate cleanup", "URL, spam, repetition, length, language, toxicity and PII filtering", "Quality scoring, custom/regex filters, before/after preview", "Document/token/character statistics, distributions, diversity and vocabulary coverage", "Histograms and charts"]),
-        .init(title: "Curated Datasets", status: .inProgress, features: ["Built-in pretraining, instruction, conversation, math, coding, reasoning and preference datasets", "Descriptions, licenses, metadata, download manager, cache and update notices"]),
-        .init(title: "Training", status: .built, features: ["Pretraining, SFT, LoRA, QLoRA, adapters, DPO", "Per-run dataset selection and mixing in the Training page, weighted by percentage or row limit", "Dataset/model/tokenizer selection", "Batching, accumulation, learning rate, scheduler, warmup, optimizer, clipping, dropout", "Epoch/step/sequence controls, mixed precision, memory optimization", "Pause, resume, stop, cancel, automatic checkpoints", "Live loss, validation, perplexity, LR, throughput, ETA, memory, hardware and event log", "Live samples and chronological sample timeline for pretraining and fine-tuning"]),
-        .init(title: "Experiments and Checkpoints", status: .inProgress, features: ["Model-scoped checkpoint browser: each model lists only its own saved runs", "Automatic/manual checkpoints, rename, duplicate, delete, reveal, best detection", "Experiment metadata, tags, notes, hyperparameter/data/model/tokenizer/hardware tracking", "Comparison, duplication, reruns, leaderboards, export", "Checkpoint timeline, preview, restore, favorites, model-evolution timeline"]),
-        .init(title: "Sampling and X-Ray", status: .inProgress, features: ["Streaming text generation, greedy, temperature, top-k, top-p, min-p, repetition penalty, seed, stop sequences", "Multiple generations, history, export, token probabilities, log probabilities, entropy", "Inline blue sampled text, continuation, generation comparison", "Token-level analysis, top candidates, rejected tokens, traces and playback", "Attention, layer/head, hidden-state, activation, residual, MLP and neuron explorers"]),
-        .init(title: "Fine-tuning and Chat", status: .built, features: ["SFT wizard, instruction, conversation, completion, classification and custom tuning", "Chat templates, system/user/assistant roles, validation, masking, packing", "Fine-tuning checkpoints, evaluation, comparison, resume", "Local chat, histories, folders, editing, regeneration, continuation, system prompts, templates, context trimming and branching", "DPO preferences, rankings, labeling, statistics, beta, checkpoints, win-rate and leaderboard"]),
-        .init(title: "Evaluation and Comparison", status: .planned, features: ["Automatic/manual perplexity, reasoning, math, coding, conversation, instruction, long-context, hallucination, consistency and safety evaluations", "Custom datasets/prompts/templates, history, leaderboard, scorecards and before/after", "Evaluation builder with exact, semantic, judge, regex and custom scoring", "Model/checkpoint/architecture/dataset/tokenizer comparison, blind side-by-side voting and benchmarks"]),
-        .init(title: "Exploration Labs", status: .planned, features: ["Embedding explorer with similarity, neighbors, PCA, UMAP, t-SNE, clustering and export", "Attention, Transformer, Context, KV Cache, Prompt and RAG labs", "Tool/function calling schemas, simulator, evaluation and training", "Safety testing and reports", "Scaling laws, break-the-model experiments, model evolution"]),
-        .init(title: "Model Import, Export, Quantization", status: .inProgress, features: ["Safetensors, compatible Hugging Face, local, tokenizer, configuration, LoRA and fine-tuned model import", "Validation, compatibility checks, conversion", "Safetensors/tokenizer/configuration/LoRA/quantized exports, recipes, cards and reproducibility packages", "FP32, FP16, BF16, INT8 and INT4 quantization, memory/speed/quality comparison and benchmarking", "Quantized model sampling and benchmarking"]),
-        .init(title: "Hardware, Serving, Monitoring", status: .inProgress, features: ["Apple Silicon, chip, RAM, CPU, GPU, Neural Engine, thermal and power profiling", "Recommended model/batch sizes and speed estimates", "Training/memory/disk/compute estimators and scenario comparison", "OpenAI-compatible local server, streaming inference, endpoints, switching, request logs, token/latency statistics", "Inference monitoring, errors, health and performance history"]),
-        .init(title: "Education and Assistance", status: .inProgress, features: ["Interactive textbook: fundamentals through safety", "Diagrams, simulations, sliders, quizzes, exercises, hints, projects, progress and history", "Hands-on onboarding tutorial", "Local AI tutor for concepts, errors, curves, recommendations and experiment review", "Smart training warnings and optimization suggestions", "Tiny GPT, Shakespeare, story, chat, math, coding, DPO, RAG and educational recipes"]),
-        .init(title: "Reproducibility and Automation", status: .planned, features: ["Seeds, dataset/tokenizer/model/hyperparameter/hardware/software/MLX/macOS tracking", "Commands, hashes, checksums, reports and one-click reproduction", "Version control for models, datasets, tokenizers, experiments, prompts and evaluations", "Pipelines, multi-stage pretrain/SFT/DPO, scheduled/batch experiments, sweeps, grid/random search and ranking"]),
-        .init(title: "Community, Collaboration, Future", status: .planned, features: ["Model, dataset, recipe, experiment and evaluation sharing", "Gallery, forks, ratings, comments, public benchmarks and leaderboards", "Shared projects, workspaces, comments, review and approvals", "Multimodal image, vision-language, audio, speech and voice workflows", "Python API, CLI, REST/WebSocket SDK, auth, docs and examples", "Natural-language model/recipe creation, visual research notebook, drag-and-drop builders and one-click deployment"]),
-        .init(title: "UX, Accessibility, Docs, Privacy", status: .inProgress, features: ["Modern dashboard, resizable panels, split views, tabs, menus, tooltips, charts, fullscreen, favorites and pinned items", "Empty-state tutorials, error explanations and undo/redo", "Keyboard, screen reader, contrast, font, reduced motion, color-blind, accessible labels/tooltips and voice navigation", "Built-in searchable documentation, troubleshooting, glossary and explanations", "Local storage, privacy controls, deletion, telemetry transparency, offline indicator", "Secure storage, safe loading, validation, sandboxing, authentication and import safety"]),
-        .init(title: "Ultimate Flow", status: .planned, features: ["Learn → Explore → Create → Design → Tokenize → Import → Clean → Analyze → Train → Inspect → Evaluate → Fine-tune → DPO → Compare → Quantize → Benchmark → Chat → RAG → Test Safety → Export → Serve → Share → Reproduce → Experiment"]),
+        .init(title: String(
+            localized: "roadmap-view.core-app.title",
+            defaultValue: "Core App",
+            comment: "Roadmap section title for core app capabilities"
+        ), status: .built, features: [String(
+            localized: "roadmap-view.core-app.item.local-first-macos-app",
+            defaultValue: "Local-first macOS app",
+            comment: "Roadmap bullet describing local-first macOS app approach"
+        ), String(
+            localized: "roadmap-view.core-app.item.apple-silicon-mlx-acceleration",
+            defaultValue: "Apple Silicon + MLX acceleration",
+            comment: "Roadmap bullet describing Apple Silicon and MLX acceleration support"
+        ), String(
+            localized: "roadmap-view.core-app.item.offline-local-storage",
+            defaultValue: "Offline local project/model/dataset storage",
+            comment: "Roadmap bullet describing offline local storage of projects models and datasets"
+        ), String(
+            localized: "roadmap-view.core-app.item.no-account-or-subscription",
+            defaultValue: "No account or subscription",
+            comment: "Roadmap bullet describing no account requirement"
+        ), String(
+            localized: "roadmap-view.core-app.item.themes-light-dark-custom",
+            defaultValue: "Light, dark, and custom themes",
+            comment: "Roadmap bullet describing theme support"
+        ), String(
+            localized: "roadmap-view.core-app.item.shortcuts-command-palette-search-notifications",
+            defaultValue: "Keyboard shortcuts, command palette, search, notifications",
+            comment: "Roadmap bullet listing productivity UI features"
+        ), String(
+            localized: "roadmap-view.core-app.item.onboarding-simple-advanced-expert-modes",
+            defaultValue: "Onboarding, Simple, Advanced, Expert modes",
+            comment: "Roadmap bullet describing user experience modes"
+        ), String(
+            localized: "roadmap-view.core-app.item.auto-updates-opt-in-crash-reporting",
+            defaultValue: "Automatic updates and opt-in crash reporting",
+            comment: "Roadmap bullet describing update and crash reporting behavior"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.model-workspaces.title",
+            defaultValue: "Model Workspaces",
+            comment: "Roadmap section title for model workspace features"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.model-workspaces.item.model-menu-lifecycle-actions",
+            defaultValue: "Create, rename, duplicate, switch, and delete models from the top-left model menu",
+            comment: "Roadmap bullet describing model lifecycle actions in model menu"
+        ), String(
+            localized: "roadmap-view.model-workspaces.item.per-model-config-saved-to-disk",
+            defaultValue: "Per-model architecture, hyperparameters, tokenizer choice and training data mix, saved to disk",
+            comment: "Roadmap bullet describing per-model saved configuration"
+        ), String(
+            localized: "roadmap-view.model-workspaces.item.per-model-run-sessions-restored",
+            defaultValue: "Per-model run sessions: loss curves, metrics and sample timelines restored on launch",
+            comment: "Roadmap bullet describing restoration of run session history"
+        ), String(
+            localized: "roadmap-view.model-workspaces.item.per-model-checkpoint-folders",
+            defaultValue: "Per-model checkpoint folders so saved runs never mix between models",
+            comment: "Roadmap bullet describing per-model checkpoint isolation"
+        ), String(
+            localized: "roadmap-view.model-workspaces.item.notes-tags-archiving-import-export-templates",
+            defaultValue: "Model notes, tags, archiving, import/export and templates",
+            comment: "Roadmap bullet listing additional model workspace tools"
+        ), String(
+            localized: "roadmap-view.model-workspaces.item.versioning-snapshots-backups-restore",
+            defaultValue: "Versioning, snapshots, automatic/manual backups, restore",
+            comment: "Roadmap bullet describing versioning and backup capabilities"
+        ), String(
+            localized: "roadmap-view.model-workspaces.item.reproducible-project-packages",
+            defaultValue: "Reproducible project packages",
+            comment: "Roadmap bullet describing reproducible project packaging"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.model-builder.title",
+            defaultValue: "Model Builder",
+            comment: "Roadmap section title for model builder capabilities"
+        ), status: .built, features: [String(
+            localized: "roadmap-view.model-builder.item.gpt-decoder-presets-tiny-to-large",
+            defaultValue: "GPT decoder architecture, presets from tiny to large",
+            comment: "Roadmap bullet describing GPT decoder architecture presets"
+        ), String(
+            localized: "roadmap-view.architecture.item.layers-hidden-size-attention-kv-heads-ffn-context-vocabulary",
+            defaultValue: "Layers, hidden size, attention, KV heads, FFN, context, vocabulary",
+            comment: "Roadmap bullet listing model architecture controls"
+        ), String(
+            localized: "roadmap-view.model-builder.item.parameter-memory-disk-training-inference-estimates",
+            defaultValue: "Parameter, memory, disk, training-time and inference estimates",
+            comment: "Roadmap bullet describing estimation tools for model resources and runtime"
+        ), String(
+            localized: "roadmap-view.architecture.item.activation-normalization-rope-weight-tying-bias-initialization-precision",
+            defaultValue: "Activation, normalization, RoPE, weight tying, bias, initialization, precision",
+            comment: "Roadmap bullet listing additional architecture and initialization options"
+        ), String(
+            localized: "roadmap-view.architecture.item.validation-config-preview-export",
+            defaultValue: "Validation, configuration preview/export",
+            comment: "Roadmap bullet describing configuration validation and export tools"
+        ), String(
+            localized: "roadmap-view.model-builder.item.custom-architecture-visualization",
+            defaultValue: "Custom architecture and architecture visualization",
+            comment: "Roadmap bullet describing custom architecture editing and visualization"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.recipes.title",
+            defaultValue: "Recipes",
+            comment: "Roadmap section title for training and setup recipes"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.recipes.item.one-click-setup",
+            defaultValue: "Runnable recipes that set architecture, hyperparameters and tokenizer in one click",
+            comment: "Roadmap bullet describing one-click runnable recipes"
+        ), String(
+            localized: "roadmap-view.recipes.item.auto-install-dataset-open-training",
+            defaultValue: "Recipes install the dataset they need and open Training ready to start",
+            comment: "Roadmap bullet describing automatic dataset install and training handoff"
+        ), String(
+            localized: "roadmap-view.recipes.item.prerequisites-and-runtime-reporting",
+            defaultValue: "Prerequisite and estimated-runtime reporting per recipe",
+            comment: "Roadmap bullet describing per-recipe prerequisite and runtime reporting"
+        ), String(
+            localized: "roadmap-view.recipes.item.recipe-chaining-pretraining-sft-dpo",
+            defaultValue: "Recipe chaining across pretraining, SFT and DPO",
+            comment: "Roadmap bullet describing chained recipe workflows across training stages"
+        ), String(
+            localized: "roadmap-view.recipes.item.custom-and-shared-recipes",
+            defaultValue: "Custom and shared recipes",
+            comment: "Roadmap bullet describing support for custom and shared recipes"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.tokenizer-lab.title",
+            defaultValue: "Tokenizer Lab",
+            comment: "Roadmap section title for tokenizer tooling"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.tokenizer-lab.item.character-byte-bpe-tokenizers",
+            defaultValue: "Character, byte, and BPE tokenizers",
+            comment: "Roadmap bullet listing supported tokenizer families"
+        ), String(
+            localized: "roadmap-view.tokenizer-lab.item.wordpiece-and-unigram",
+            defaultValue: "WordPiece and Unigram",
+            comment: "Roadmap bullet listing additional tokenizer algorithms"
+        ), String(
+            localized: "roadmap-view.tokenizer-lab.item.vocabulary-special-token-editor",
+            defaultValue: "Vocabulary and special-token editor",
+            comment: "Roadmap bullet describing vocabulary and special token editing tools"
+        ), String(
+            localized: "roadmap-view.tokenizer-lab.item.visualization-probabilities-counts-compression-statistics",
+            defaultValue: "Token visualization, probabilities, counts, compression and statistics",
+            comment: "Roadmap bullet describing tokenizer analytics features"
+        ), String(
+            localized: "roadmap-view.tokenizer-lab.item.testing-comparison-import-export",
+            defaultValue: "Tokenizer testing, comparison, import/export",
+            comment: "Roadmap bullet describing tokenizer testing comparison and exchange features"
+        ), String(
+            localized: "roadmap-view.tokenizer-lab.item.unicode-multilingual-heatmap-analysis",
+            defaultValue: "Unicode, multilingual, and heatmap analysis",
+            comment: "Roadmap bullet describing unicode multilingual and heatmap analysis"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.dataset-studio.title",
+            defaultValue: "Dataset Studio",
+            comment: "Roadmap section title for dataset tooling"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.dataset-studio.item.browser-marketplace-preview-search-filters-sorting-metadata",
+            defaultValue: "Dataset browser, marketplace, preview, search, filters, sorting, metadata",
+            comment: "Roadmap bullet describing dataset browsing and discovery features"
+        ), String(
+            localized: "roadmap-view.dataset-studio.item.installed-library-saved-reloaded",
+            defaultValue: "Installed dataset library saved to disk and reloaded on launch",
+            comment: "Roadmap bullet describing persistent installed dataset library behavior"
+        ), String(
+            localized: "roadmap-view.dataset-studio.item.dataset-cards-rendered-from-readmes",
+            defaultValue: "Dataset cards rendered from real READMEs with frontmatter stripped and HTML flattened",
+            comment: "Roadmap bullet describing README-based dataset card rendering pipeline"
+        ), String(
+            localized: "roadmap-view.dataset-studio.item.recommended-datasets-pinned-first",
+            defaultValue: "Recommended datasets pinned first in every mode",
+            comment: "Roadmap bullet describing prioritized recommended datasets"
+        ), String(
+            localized: "roadmap-view.dataset-studio.item.rename-reveal-delete-size-provenance",
+            defaultValue: "Rename, reveal, and delete installed datasets; per-dataset size and provenance",
+            comment: "Roadmap bullet describing installed dataset management and provenance info"
+        ), String(
+            localized: "roadmap-view.dataset-studio.item.versioning-snapshots-checksums-duplication",
+            defaultValue: "Versioning, snapshots, checksums, duplication",
+            comment: "Roadmap bullet describing dataset integrity and history features"
+        ), String(
+            localized: "roadmap-view.dataset-studio.item.splitting-sampling-balancing-curriculum",
+            defaultValue: "Splitting, train/validation/test, sampling, balancing, curriculum",
+            comment: "Roadmap bullet describing dataset split and sampling workflow features"
+        ), String(
+            localized: "roadmap-view.dataset-studio.item.import-formats-and-sources",
+            defaultValue: "TXT, JSON, JSONL, CSV, Markdown, HTML, PDF, folders, drag-and-drop",
+            comment: "Roadmap bullet listing supported dataset formats and import methods"
+        ), String(
+            localized: "roadmap-view.dataset-studio.item.hugging-face-custom-conversation-instruction-preference-code-math-imports",
+            defaultValue: "Hugging Face, custom, conversation, instruction, preference, code and math imports",
+            comment: "Roadmap bullet listing available dataset source and schema import types"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.data-quality.title",
+            defaultValue: "Data Quality",
+            comment: "Roadmap section title for data quality tooling"
+        ), status: .planned, features: [String(
+            localized: "roadmap-view.data-quality.item.duplicate-detection",
+            defaultValue: "Exact and near-duplicate detection",
+            comment: "Roadmap bullet describing exact and near-duplicate detection capabilities"
+        ), String(
+            localized: "roadmap-view.data-quality.item.normalization-encoding-html-boilerplate-cleanup",
+            defaultValue: "Normalization, encoding, HTML and boilerplate cleanup",
+            comment: "Roadmap bullet describing normalization and cleanup passes"
+        ), String(
+            localized: "roadmap-view.data-quality.item.url-spam-repetition-length-language-toxicity-pii-filtering",
+            defaultValue: "URL, spam, repetition, length, language, toxicity and PII filtering",
+            comment: "Roadmap bullet describing safety and quality filtering options"
+        ), String(
+            localized: "roadmap-view.data-quality.item.quality-scoring-custom-regex-before-after-preview",
+            defaultValue: "Quality scoring, custom/regex filters, before/after preview",
+            comment: "Roadmap bullet describing quality scoring and preview tooling"
+        ), String(
+            localized: "roadmap-view.data-quality.item.statistics-distributions-diversity-vocabulary-coverage",
+            defaultValue: "Document/token/character statistics, distributions, diversity and vocabulary coverage",
+            comment: "Roadmap bullet describing statistical analysis and coverage metrics"
+        ), String(
+            localized: "roadmap-view.data-quality.item.histograms-and-charts",
+            defaultValue: "Histograms and charts",
+            comment: "Roadmap bullet describing chart and histogram visualization features"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.curated-datasets.title",
+            defaultValue: "Curated Datasets",
+            comment: "Roadmap section title for curated dataset offerings"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.curated-datasets.item.built-in-pretraining-instruction-conversation-math-coding-reasoning-preference",
+            defaultValue: "Built-in pretraining, instruction, conversation, math, coding, reasoning and preference datasets",
+            comment: "Roadmap bullet describing built-in dataset categories"
+        ), String(
+            localized: "roadmap-view.curated-datasets.item.descriptions-licenses-metadata-download-manager-cache-update-notices",
+            defaultValue: "Descriptions, licenses, metadata, download manager, cache and update notices",
+            comment: "Roadmap bullet describing curated dataset metadata and download management features"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.training.title",
+            defaultValue: "Training",
+            comment: "Roadmap section title for training capabilities"
+        ), status: .built, features: [String(
+            localized: "roadmap-view.training.item.pretraining-sft-lora-qlora-adapters-dpo",
+            defaultValue: "Pretraining, SFT, LoRA, QLoRA, adapters, DPO",
+            comment: "Roadmap bullet listing supported training methods"
+        ), String(
+            localized: "roadmap-view.training.item.per-run-dataset-selection-mixing-weighted",
+            defaultValue: "Per-run dataset selection and mixing in the Training page, weighted by percentage or row limit",
+            comment: "Roadmap bullet describing per-run dataset selection and weighted mixing options"
+        ), String(
+            localized: "roadmap-view.training.item.dataset-model-tokenizer-selection",
+            defaultValue: "Dataset/model/tokenizer selection",
+            comment: "Roadmap bullet describing selection of dataset model and tokenizer for training"
+        ), String(
+            localized: "roadmap-view.training.item.batching-accumulation-lr-scheduler-warmup-optimizer-clipping-dropout",
+            defaultValue: "Batching, accumulation, learning rate, scheduler, warmup, optimizer, clipping, dropout",
+            comment: "Roadmap bullet listing configurable training hyperparameters"
+        ), String(
+            localized: "roadmap-view.training.item.epoch-step-sequence-controls-mixed-precision-memory-optimization",
+            defaultValue: "Epoch/step/sequence controls, mixed precision, memory optimization",
+            comment: "Roadmap bullet describing training controls and optimization settings"
+        ), String(
+            localized: "roadmap-view.training.item.pause-resume-stop-cancel-auto-checkpoints",
+            defaultValue: "Pause, resume, stop, cancel, automatic checkpoints",
+            comment: "Roadmap bullet describing run control actions and automatic checkpointing"
+        ), String(
+            localized: "roadmap-view.training.item.live-metrics-loss-validation-perplexity-lr-throughput-eta-memory-hardware-event-log",
+            defaultValue: "Live loss, validation, perplexity, LR, throughput, ETA, memory, hardware and event log",
+            comment: "Roadmap bullet listing live metrics and telemetry available during training"
+        ), String(
+            localized: "roadmap-view.training.item.live-samples-chronological-timeline-pretraining-finetuning",
+            defaultValue: "Live samples and chronological sample timeline for pretraining and fine-tuning",
+            comment: "Roadmap bullet describing sample timeline tracking for training stages"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.experiments-and-checkpoints.title",
+            defaultValue: "Experiments and Checkpoints",
+            comment: "Roadmap section title for experiment tracking and checkpoint management"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.experiments-and-checkpoints.item.model-scoped-checkpoint-browser",
+            defaultValue: "Model-scoped checkpoint browser: each model lists only its own saved runs",
+            comment: "Roadmap bullet describing model-scoped checkpoint browser behavior"
+        ), String(
+            localized: "roadmap-view.experiments-and-checkpoints.item.auto-manual-checkpoints-rename-duplicate-delete-reveal-best-detection",
+            defaultValue: "Automatic/manual checkpoints, rename, duplicate, delete, reveal, best detection",
+            comment: "Roadmap bullet listing checkpoint management operations"
+        ), String(
+            localized: "roadmap-view.experiments-and-checkpoints.item.experiment-metadata-tags-notes-tracking",
+            defaultValue: "Experiment metadata, tags, notes, hyperparameter/data/model/tokenizer/hardware tracking",
+            comment: "Roadmap bullet describing experiment metadata and tracking dimensions"
+        ), String(
+            localized: "roadmap-view.experiments-and-checkpoints.item.comparison-duplication-reruns-leaderboards-export",
+            defaultValue: "Comparison, duplication, reruns, leaderboards, export",
+            comment: "Roadmap bullet describing experiment comparison and sharing actions"
+        ), String(
+            localized: "roadmap-view.experiments-and-checkpoints.item.timeline-preview-restore-favorites-model-evolution",
+            defaultValue: "Checkpoint timeline, preview, restore, favorites, model-evolution timeline",
+            comment: "Roadmap bullet describing checkpoint timeline and restoration tools"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.sampling-and-xray.title",
+            defaultValue: "Sampling and X-Ray",
+            comment: "Roadmap section title for sampling and token inspection features"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.sampling-and-xray.item.streaming-generation-greedy-temperature-topk-topp-minp-repetition-penalty-seed-stop-sequences",
+            defaultValue: "Streaming text generation, greedy, temperature, top-k, top-p, min-p, repetition penalty, seed, stop sequences",
+            comment: "Roadmap bullet listing sampling controls and decoding options"
+        ), String(
+            localized: "roadmap-view.sampling-and-xray.item.multiple-generations-history-export-token-probabilities-log-probabilities-entropy",
+            defaultValue: "Multiple generations, history, export, token probabilities, log probabilities, entropy",
+            comment: "Roadmap bullet describing generation analysis outputs and export history"
+        ), String(
+            localized: "roadmap-view.sampling-and-xray.item.inline-blue-sampled-text-continuation-generation-comparison",
+            defaultValue: "Inline blue sampled text, continuation, generation comparison",
+            comment: "Roadmap bullet describing inline sampled text and comparison workflow"
+        ), String(
+            localized: "roadmap-view.sampling-and-xray.item.token-level-analysis-top-candidates-rejected-tokens-traces-playback",
+            defaultValue: "Token-level analysis, top candidates, rejected tokens, traces and playback",
+            comment: "Roadmap bullet describing token-level inspection and trace playback tools"
+        ), String(
+            localized: "roadmap-view.sampling-and-xray.item.attention-layer-head-hidden-state-activation-residual-mlp-neuron-explorers",
+            defaultValue: "Attention, layer/head, hidden-state, activation, residual, MLP and neuron explorers",
+            comment: "Roadmap bullet describing advanced internal model state explorers"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.fine-tuning-and-chat.title",
+            defaultValue: "Fine-tuning and Chat",
+            comment: "Roadmap section title for fine-tuning and chat capabilities"
+        ), status: .built, features: [String(
+            localized: "roadmap-view.fine-tuning-and-chat.item.sft-wizard-instruction-conversation-completion-classification-custom-tuning",
+            defaultValue: "SFT wizard, instruction, conversation, completion, classification and custom tuning",
+            comment: "Roadmap bullet describing SFT workflow and tuning task types"
+        ), String(
+            localized: "roadmap-view.fine-tuning-and-chat.item.chat-templates-roles-validation-masking-packing",
+            defaultValue: "Chat templates, system/user/assistant roles, validation, masking, packing",
+            comment: "Roadmap bullet describing chat template and role-aware data preparation features"
+        ), String(
+            localized: "roadmap-view.chat-and-finetuning.item.fine-tuning-checkpoints-evaluation-comparison-resume",
+            defaultValue: "Fine-tuning checkpoints, evaluation, comparison, resume",
+            comment: "Roadmap bullet describing fine-tuning checkpoint and evaluation workflow"
+        ), String(
+            localized: "roadmap-view.chat-and-finetuning.item.local-chat-histories-folders-editing-regeneration-continuation-system-prompts-templates-context-trimming-branching",
+            defaultValue: "Local chat, histories, folders, editing, regeneration, continuation, system prompts, templates, context trimming and branching",
+            comment: "Roadmap bullet listing local chat management and prompt workflow features"
+        ), String(
+            localized: "roadmap-view.fine-tuning-and-chat.item.dpo-preferences-rankings-labeling-statistics-beta-checkpoints-win-rate-leaderboard",
+            defaultValue: "DPO preferences, rankings, labeling, statistics, beta, checkpoints, win-rate and leaderboard",
+            comment: "Roadmap bullet describing DPO preference training and evaluation tooling"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.evaluation-and-comparison.title",
+            defaultValue: "Evaluation and Comparison",
+            comment: "Roadmap section title for evaluation and model comparison tools"
+        ), status: .planned, features: [String(
+            localized: "roadmap-view.evaluation-and-comparison.item.automatic-manual-perplexity-reasoning-math-coding-conversation-instruction-long-context-hallucination-consistency-safety-evaluations",
+            defaultValue: "Automatic/manual perplexity, reasoning, math, coding, conversation, instruction, long-context, hallucination, consistency and safety evaluations",
+            comment: "Roadmap bullet listing supported evaluation dimensions and modes"
+        ), String(
+            localized: "roadmap-view.evaluation-and-comparison.item.custom-datasets-prompts-templates-history-leaderboard-scorecards-before-after",
+            defaultValue: "Custom datasets/prompts/templates, history, leaderboard, scorecards and before/after",
+            comment: "Roadmap bullet describing custom evaluation assets and result tracking"
+        ), String(
+            localized: "roadmap-view.evaluation-and-comparison.item.evaluation-builder-exact-semantic-judge-regex-custom-scoring",
+            defaultValue: "Evaluation builder with exact, semantic, judge, regex and custom scoring",
+            comment: "Roadmap bullet describing configurable evaluation scoring methods"
+        ), String(
+            localized: "roadmap-view.evaluation-and-comparison.item.model-checkpoint-architecture-dataset-tokenizer-comparison-blind-side-by-side-voting-benchmarks",
+            defaultValue: "Model/checkpoint/architecture/dataset/tokenizer comparison, blind side-by-side voting and benchmarks",
+            comment: "Roadmap bullet describing comparative benchmarking and blind voting capabilities"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.exploration-labs.title",
+            defaultValue: "Exploration Labs",
+            comment: "Roadmap section title for exploration lab features"
+        ), status: .planned, features: [String(
+            localized: "roadmap-view.exploration-labs.item.embedding-explorer-similarity-neighbors-pca-umap-tsne-clustering-export",
+            defaultValue: "Embedding explorer with similarity, neighbors, PCA, UMAP, t-SNE, clustering and export",
+            comment: "Roadmap bullet describing embedding analysis and export tools"
+        ), String(
+            localized: "roadmap-view.exploration-labs.item.attention-transformer-context-kv-cache-prompt-rag-labs",
+            defaultValue: "Attention, Transformer, Context, KV Cache, Prompt and RAG labs",
+            comment: "Roadmap bullet listing specialized architecture and prompt exploration labs"
+        ), String(
+            localized: "roadmap-view.exploration-labs.item.tool-function-calling-schemas-simulator-evaluation-training",
+            defaultValue: "Tool/function calling schemas, simulator, evaluation and training",
+            comment: "Roadmap bullet describing tool/function-calling experimentation support"
+        ), String(
+            localized: "roadmap-view.exploration-labs.item.safety-testing-and-reports",
+            defaultValue: "Safety testing and reports",
+            comment: "Roadmap bullet describing safety analysis and reporting features"
+        ), String(
+            localized: "roadmap-view.exploration-labs.item.scaling-laws-break-the-model-experiments-model-evolution",
+            defaultValue: "Scaling laws, break-the-model experiments, model evolution",
+            comment: "Roadmap bullet describing scaling and robustness experiment capabilities"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.model-import-export-quantization.title",
+            defaultValue: "Model Import, Export, Quantization",
+            comment: "Roadmap section title for model interchange and quantization features"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.model-import-export-quantization.item.safetensors-compatible-hugging-face-local-tokenizer-configuration-lora-fine-tuned-model-import",
+            defaultValue: "Safetensors, compatible Hugging Face, local, tokenizer, configuration, LoRA and fine-tuned model import",
+            comment: "Roadmap bullet describing supported model import sources and artifacts"
+        ), String(
+            localized: "roadmap-view.model-import-export-quantization.item.validation-compatibility-checks-conversion",
+            defaultValue: "Validation, compatibility checks, conversion",
+            comment: "Roadmap bullet describing model validation and conversion workflow"
+        ), String(
+            localized: "roadmap-view.model-import-export-quantization.item.safetensors-tokenizer-configuration-lora-quantized-exports-recipes-cards-reproducibility-packages",
+            defaultValue: "Safetensors/tokenizer/configuration/LoRA/quantized exports, recipes, cards and reproducibility packages",
+            comment: "Roadmap bullet describing export artifacts and reproducibility package outputs"
+        ), String(
+            localized: "roadmap-view.model-import-export-quantization.item.fp32-fp16-bf16-int8-int4-quantization-memory-speed-quality-comparison-benchmarking",
+            defaultValue: "FP32, FP16, BF16, INT8 and INT4 quantization, memory/speed/quality comparison and benchmarking",
+            comment: "Roadmap bullet describing quantization modes and comparative benchmarking"
+        ), String(
+            localized: "roadmap-view.model-import-export-quantization.item.quantized-model-sampling-and-benchmarking",
+            defaultValue: "Quantized model sampling and benchmarking",
+            comment: "Roadmap bullet describing sampling and benchmark support for quantized models"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.hardware-serving-monitoring.title",
+            defaultValue: "Hardware, Serving, Monitoring",
+            comment: "Roadmap section title for hardware serving and monitoring capabilities"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.hardware-serving-monitoring.item.apple-silicon-chip-ram-cpu-gpu-neural-engine-thermal-power-profiling",
+            defaultValue: "Apple Silicon, chip, RAM, CPU, GPU, Neural Engine, thermal and power profiling",
+            comment: "Roadmap bullet describing hardware profiling dimensions"
+        ), String(
+            localized: "roadmap-view.hardware-serving-monitoring.item.recommended-model-batch-sizes-speed-estimates",
+            defaultValue: "Recommended model/batch sizes and speed estimates",
+            comment: "Roadmap bullet describing hardware-based sizing and speed guidance"
+        ), String(
+            localized: "roadmap-view.hardware-serving-monitoring.item.training-memory-disk-compute-estimators-scenario-comparison",
+            defaultValue: "Training/memory/disk/compute estimators and scenario comparison",
+            comment: "Roadmap bullet describing resource estimation and scenario comparison tools"
+        ), String(
+            localized: "roadmap-view.hardware-serving-monitoring.item.openai-compatible-local-server-streaming-inference-endpoints-switching-request-logs-token-latency-statistics",
+            defaultValue: "OpenAI-compatible local server, streaming inference, endpoints, switching, request logs, token/latency statistics",
+            comment: "Roadmap bullet describing local server and inference telemetry capabilities"
+        ), String(
+            localized: "roadmap-view.hardware-serving-monitoring.item.inference-monitoring-errors-health-performance-history",
+            defaultValue: "Inference monitoring, errors, health and performance history",
+            comment: "Roadmap bullet describing inference health monitoring and historical performance tracking"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.education-and-assistance.title",
+            defaultValue: "Education and Assistance",
+            comment: "Roadmap section title for educational and assistant features"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.education-and-assistance.item.interactive-textbook-fundamentals-through-safety",
+            defaultValue: "Interactive textbook: fundamentals through safety",
+            comment: "Roadmap bullet describing interactive textbook coverage"
+        ), String(
+            localized: "roadmap-view.education-and-assistance.item.diagrams-simulations-sliders-quizzes-exercises-hints-projects-progress-history",
+            defaultValue: "Diagrams, simulations, sliders, quizzes, exercises, hints, projects, progress and history",
+            comment: "Roadmap bullet listing educational interaction and progress tracking features"
+        ), String(
+            localized: "roadmap-view.education-and-assistance.item.hands-on-onboarding-tutorial",
+            defaultValue: "Hands-on onboarding tutorial",
+            comment: "Roadmap bullet describing guided onboarding tutorial"
+        ), String(
+            localized: "roadmap-view.education-and-assistance.item.local-ai-tutor-concepts-errors-curves-recommendations-experiment-review",
+            defaultValue: "Local AI tutor for concepts, errors, curves, recommendations and experiment review",
+            comment: "Roadmap bullet describing local AI tutoring support"
+        ), String(
+            localized: "roadmap-view.education-and-assistance.item.smart-training-warnings-optimization-suggestions",
+            defaultValue: "Smart training warnings and optimization suggestions",
+            comment: "Roadmap bullet describing proactive training guidance and optimization advice"
+        ), String(
+            localized: "roadmap-view.education-and-assistance.item.tiny-gpt-shakespeare-story-chat-math-coding-dpo-rag-educational-recipes",
+            defaultValue: "Tiny GPT, Shakespeare, story, chat, math, coding, DPO, RAG and educational recipes",
+            comment: "Roadmap bullet listing bundled educational and task-specific recipes"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.reproducibility-and-automation.title",
+            defaultValue: "Reproducibility and Automation",
+            comment: "Roadmap section title for reproducibility and automation features"
+        ), status: .planned, features: [String(
+            localized: "roadmap-view.reproducibility-and-automation.item.seeds-dataset-tokenizer-model-hyperparameter-hardware-software-mlx-macos-tracking",
+            defaultValue: "Seeds, dataset/tokenizer/model/hyperparameter/hardware/software/MLX/macOS tracking",
+            comment: "Roadmap bullet describing full-stack experiment configuration tracking"
+        ), String(
+            localized: "roadmap-view.reproducibility-and-automation.item.commands-hashes-checksums-reports-one-click-reproduction",
+            defaultValue: "Commands, hashes, checksums, reports and one-click reproduction",
+            comment: "Roadmap bullet describing reproducibility artifacts and one-click rerun support"
+        ), String(
+            localized: "roadmap-view.reproducibility-and-automation.item.version-control-models-datasets-tokenizers-experiments-prompts-evaluations",
+            defaultValue: "Version control for models, datasets, tokenizers, experiments, prompts and evaluations",
+            comment: "Roadmap bullet describing version control scope across ML artifacts"
+        ), String(
+            localized: "roadmap-view.reproducibility-and-automation.item.pipelines-multi-stage-pretrain-sft-dpo-scheduled-batch-experiments-sweeps-grid-random-search-ranking",
+            defaultValue: "Pipelines, multi-stage pretrain/SFT/DPO, scheduled/batch experiments, sweeps, grid/random search and ranking",
+            comment: "Roadmap bullet describing automated pipeline orchestration and search strategies"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.community-collaboration-future.title",
+            defaultValue: "Community, Collaboration, Future",
+            comment: "Roadmap section title for community and future collaboration direction"
+        ), status: .planned, features: [String(
+            localized: "roadmap-view.community-collaboration-future.item.model-dataset-recipe-experiment-evaluation-sharing",
+            defaultValue: "Model, dataset, recipe, experiment and evaluation sharing",
+            comment: "Roadmap bullet describing sharing capabilities across key artifacts"
+        ), String(
+            localized: "roadmap-view.community-collaboration-future.item.gallery-forks-ratings-comments-public-benchmarks-leaderboards",
+            defaultValue: "Gallery, forks, ratings, comments, public benchmarks and leaderboards",
+            comment: "Roadmap bullet describing community gallery and benchmark features"
+        ), String(
+            localized: "roadmap-view.community-collaboration-future.item.shared-projects-workspaces-comments-review-approvals",
+            defaultValue: "Shared projects, workspaces, comments, review and approvals",
+            comment: "Roadmap bullet describing collaboration workflow features"
+        ), String(
+            localized: "roadmap-view.multimodal.item.image-vision-language-audio-speech-voice-workflows",
+            defaultValue: "Multimodal image, vision-language, audio, speech and voice workflows",
+            comment: "Roadmap bullet describing multimodal workflow support"
+        ), String(
+            localized: "roadmap-view.community-collaboration-future.item.python-api-cli-rest-websocket-sdk-auth-docs-examples",
+            defaultValue: "Python API, CLI, REST/WebSocket SDK, auth, docs and examples",
+            comment: "Roadmap bullet describing developer platform interfaces and documentation"
+        ), String(
+            localized: "roadmap-view.community-collaboration-future.item.natural-language-model-recipe-creation-visual-research-notebook-drag-and-drop-builders-one-click-deployment",
+            defaultValue: "Natural-language model/recipe creation, visual research notebook, drag-and-drop builders and one-click deployment",
+            comment: "Roadmap bullet describing future creation and deployment UX capabilities"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.ux-accessibility-docs-privacy.title",
+            defaultValue: "UX, Accessibility, Docs, Privacy",
+            comment: "Roadmap section title for user experience accessibility documentation and privacy"
+        ), status: .inProgress, features: [String(
+            localized: "roadmap-view.ux-accessibility-docs-privacy.item.modern-dashboard-resizable-panels-split-views-tabs-menus-tooltips-charts-fullscreen-favorites-pinned-items",
+            defaultValue: "Modern dashboard, resizable panels, split views, tabs, menus, tooltips, charts, fullscreen, favorites and pinned items",
+            comment: "Roadmap bullet describing advanced dashboard and navigation UX features"
+        ), String(
+            localized: "roadmap-view.ux-accessibility-docs-privacy.item.empty-state-tutorials-error-explanations-undo-redo",
+            defaultValue: "Empty-state tutorials, error explanations and undo/redo",
+            comment: "Roadmap bullet describing in-context help and recovery flows"
+        ), String(
+            localized: "roadmap-view.ux-accessibility-docs-privacy.item.keyboard-screen-reader-contrast-font-reduced-motion-color-blind-accessible-labels-tooltips-voice-navigation",
+            defaultValue: "Keyboard, screen reader, contrast, font, reduced motion, color-blind, accessible labels/tooltips and voice navigation",
+            comment: "Roadmap bullet describing accessibility feature coverage"
+        ), String(
+            localized: "roadmap-view.ux-accessibility-docs-privacy.item.built-in-searchable-documentation-troubleshooting-glossary-explanations",
+            defaultValue: "Built-in searchable documentation, troubleshooting, glossary and explanations",
+            comment: "Roadmap bullet describing integrated documentation and support content"
+        ), String(
+            localized: "roadmap-view.ux-accessibility-docs-privacy.item.local-storage-privacy-controls-deletion-telemetry-transparency-offline-indicator",
+            defaultValue: "Local storage, privacy controls, deletion, telemetry transparency, offline indicator",
+            comment: "Roadmap bullet describing privacy and local-data control features"
+        ), String(
+            localized: "roadmap-view.ux-accessibility-docs-privacy.item.secure-storage-safe-loading-validation-sandboxing-authentication-import-safety",
+            defaultValue: "Secure storage, safe loading, validation, sandboxing, authentication and import safety",
+            comment: "Roadmap bullet describing safety and security hardening features"
+        )]),
+        .init(title: String(
+            localized: "roadmap-view.ultimate-flow.title",
+            defaultValue: "Ultimate Flow",
+            comment: "Roadmap section title for end-to-end workflow path"
+        ), status: .planned, features: [String(
+            localized: "roadmap-view.ultimate-flow.sequence",
+            defaultValue: "Learn → Explore → Create → Design → Tokenize → Import → Clean → Analyze → Train → Inspect → Evaluate → Fine-tune → DPO → Compare → Quantize → Benchmark → Chat → RAG → Test Safety → Export → Serve → Share → Reproduce → Experiment",
+            comment: "Roadmap bullet listing complete product workflow from learning to experimentation"
+        )]),
     ]
 
     private var filtered: [Group] {
@@ -48,8 +588,24 @@ struct RoadmapView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                WorkbenchPageHeader(eyebrow: "System", title: "Roadmap", subtitle: "The complete product direction, grouped by capability and honest implementation status.", icon: "map")
-                TextField("Search capabilities", text: $query).textFieldStyle(.roundedBorder).frame(maxWidth: 420)
+                WorkbenchPageHeader(eyebrow: String(
+                    localized: "roadmap-view.system.section",
+                    defaultValue: "System",
+                    comment: "Section label for roadmap system grouping"
+                ), title: String(
+                    localized: "roadmap-view.title.roadmap",
+                    defaultValue: "Roadmap",
+                    comment: "Primary title for roadmap view"
+                ), subtitle: String(
+                    localized: "roadmap-view.subtitle.complete-product-direction",
+                    defaultValue: "The complete product direction, grouped by capability and honest implementation status.",
+                    comment: "Subtitle describing roadmap grouping and status intent"
+                ), icon: "map")
+                TextField(String(
+                    localized: "roadmap-view.search.placeholder.capabilities",
+                    defaultValue: "Search capabilities",
+                    comment: "Placeholder or label for roadmap capability search field"
+                ), text: $query).textFieldStyle(.roundedBorder).frame(maxWidth: 420)
                 ForEach(statusOrder, id: \.self) { status in
                     let sectionGroups = filtered.filter { $0.status == status }
                     if !sectionGroups.isEmpty {
@@ -80,6 +636,30 @@ struct RoadmapView: View {
 
     private func icon(for status: Group.Status) -> String { status == .built ? "checkmark.circle.fill" : status == .inProgress ? "clock.arrow.circlepath" : "circle.dashed" }
     private func color(for status: Group.Status) -> Color { status == .built ? .green : status == .inProgress ? .orange : .secondary }
-    private func label(for status: Group.Status) -> String { status == .built ? "Built" : status == .inProgress ? "In progress" : "Planned" }
-    private func sectionTitle(for status: Group.Status) -> String { status == .built ? "COMPLETED" : status == .inProgress ? "IN PROGRESS" : "PLANNED" }
+    private func label(for status: Group.Status) -> String { status == .built ? String(
+        localized: "roadmap-view.status.built",
+        defaultValue: "Built",
+        comment: "Roadmap status label indicating completed built capability"
+    ) : status == .inProgress ? String(
+        localized: "roadmap-view.status.in-progress",
+        defaultValue: "In progress",
+        comment: "Roadmap status label indicating work is currently in progress"
+    ) : String(
+        localized: "roadmap-view.status.planned",
+        defaultValue: "Planned",
+        comment: "Roadmap status label for planned items"
+    ) }
+    private func sectionTitle(for status: Group.Status) -> String { status == .built ? String(
+        localized: "roadmap-view.badge.completed-uppercase",
+        defaultValue: "COMPLETED",
+        comment: "Uppercase roadmap status badge text for completed items"
+    ) : status == .inProgress ? String(
+        localized: "roadmap-view.badge.in-progress-uppercase",
+        defaultValue: "IN PROGRESS",
+        comment: "Uppercase roadmap status badge text for in-progress items"
+    ) : String(
+        localized: "roadmap-view.badge.planned-uppercase",
+        defaultValue: "PLANNED",
+        comment: "Uppercase roadmap status badge text for planned items"
+    ) }
 }

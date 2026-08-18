@@ -9,9 +9,21 @@ enum AppMode: String, Codable, CaseIterable, Identifiable {
     var label: String { rawValue.capitalized }
     var blurb: String {
         switch self {
-        case .simple:   return "Guided. The full learning path with sensible defaults."
-        case .advanced: return "Adds useful controls for tuning and experiments."
-        case .expert:   return "Everything exposed. Minimal hand-holding."
+        case .simple:   return String(
+            localized: "preferences.experience-level.guided.description",
+            defaultValue: "Guided. The full learning path with sensible defaults.",
+            comment: "Description for guided experience level option"
+        )
+        case .advanced: return String(
+            localized: "preferences.experience-level.intermediate.description",
+            defaultValue: "Adds useful controls for tuning and experiments.",
+            comment: "Description for intermediate experience level option"
+        )
+        case .expert:   return String(
+            localized: "preferences.experience-level.advanced.description",
+            defaultValue: "Everything exposed. Minimal hand-holding.",
+            comment: "Description for advanced experience level option"
+        )
         }
     }
     var icon: String {

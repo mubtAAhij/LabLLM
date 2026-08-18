@@ -28,28 +28,92 @@ struct ModelSwitcherView: View {
             .onAppear(perform: refreshCheckpointCount)
             .onChange(of: models.activeID) { _ in refreshCheckpointCount() }
             .onChange(of: trainer.lastCheckpointDir) { _ in refreshCheckpointCount() }
-            .alert("New model", isPresented: $isCreating) {
-                TextField("Model name", text: $draftName)
-                Button("Create") { state.createModel(named: draftName); refreshCheckpointCount() }
-                Button("Cancel", role: .cancel) { }
+            .alert(String(
+                localized: "model-switcher.new-model.title",
+                defaultValue: "New model",
+                comment: "Dialog title for creating a new model"
+            ), isPresented: $isCreating) {
+                TextField(String(
+                    localized: "model-switcher.model-name.label.create",
+                    defaultValue: "Model name",
+                    comment: "Text field label for model name in create dialog"
+                ), text: $draftName)
+                Button(String(
+                    localized: "model-switcher.actions.create",
+                    defaultValue: "Create",
+                    comment: "Primary action button label for model creation"
+                )) { state.createModel(named: draftName); refreshCheckpointCount() }
+                Button(String(
+                    localized: "model-switcher.actions.cancel.create",
+                    defaultValue: "Cancel",
+                    comment: "Cancel action button label in create model dialog"
+                ), role: .cancel) { }
             } message: {
-                Text("A model keeps its own architecture, hyperparameters, training data mix, and checkpoints.")
+                Text(String(
+                    localized: "model-switcher.new-model.help",
+                    defaultValue: "A model keeps its own architecture, hyperparameters, training data mix, and checkpoints.",
+                    comment: "Helper text explaining model-level isolation"
+                ))
             }
-            .alert("Rename model", isPresented: $isRenaming) {
-                TextField("Model name", text: $draftName)
-                Button("Rename") { state.renameActiveModel(to: draftName) }
-                Button("Cancel", role: .cancel) { }
+            .alert(String(
+                localized: "model-switcher.rename-model.title",
+                defaultValue: "Rename model",
+                comment: "Dialog title for renaming a model"
+            ), isPresented: $isRenaming) {
+                TextField(String(
+                    localized: "model-switcher.model-name.label.rename",
+                    defaultValue: "Model name",
+                    comment: "Text field label for model name in rename dialog"
+                ), text: $draftName)
+                Button(String(
+                    localized: "model-switcher.actions.rename",
+                    defaultValue: "Rename",
+                    comment: "Primary action button label for rename model dialog"
+                )) { state.renameActiveModel(to: draftName) }
+                Button(String(
+                    localized: "model-switcher.actions.cancel.rename",
+                    defaultValue: "Cancel",
+                    comment: "Cancel action button label in rename model dialog"
+                ), role: .cancel) { }
             } message: {
-                Text("Renaming affects this model only. Its checkpoints stay where they are.")
+                Text(String(
+                    localized: "model-switcher.rename-model.help",
+                    defaultValue: "Renaming affects this model only. Its checkpoints stay where they are.",
+                    comment: "Helper text describing scope of model rename"
+                ))
             }
-            .alert("Delete \(models.activeName)?", isPresented: $isConfirmingDelete) {
-                Button("Delete", role: .destructive) { state.deleteActiveModel(); refreshCheckpointCount() }
-                Button("Cancel", role: .cancel) { }
+            .alert(String(format: String(
+                localized: "model-switcher.delete-model.title",
+                defaultValue: "Delete %@?",
+                comment: "Confirmation title for deleting active model"
+            ), "\(models.activeName)"), isPresented: $isConfirmingDelete) {
+                Button(String(
+                    localized: "model-switcher.actions.delete",
+                    defaultValue: "Delete",
+                    comment: "Destructive action button label in delete model confirmation"
+                ), role: .destructive) { state.deleteActiveModel(); refreshCheckpointCount() }
+                Button(String(
+                    localized: "model-switcher.actions.cancel.delete",
+                    defaultValue: "Cancel",
+                    comment: "Cancel action button label in delete model confirmation"
+                ), role: .cancel) { }
             } message: {
-                Text("This permanently deletes the model and its checkpoints. Installed datasets are kept.")
+                Text(String(
+                    localized: "model-switcher.delete-model.help",
+                    defaultValue: "This permanently deletes the model and its checkpoints. Installed datasets are kept.",
+                    comment: "Warning text in delete model confirmation"
+                ))
             }
-            .alert("Model problem", isPresented: Binding(get: { models.lastError != nil }, set: { if !$0 { models.lastError = nil } })) {
-                Button("OK", role: .cancel) { }
+            .alert(String(
+                localized: "model-switcher.alert.model-problem.title",
+                defaultValue: "Model problem",
+                comment: "Alert title for model operation errors"
+            ), isPresented: Binding(get: { models.lastError != nil }, set: { if !$0 { models.lastError = nil } })) {
+                Button(String(
+                    localized: "model-switcher.alert.ok",
+                    defaultValue: "OK",
+                    comment: "Dismiss action label for model alert"
+                ), role: .cancel) { }
             } message: { Text(models.lastError ?? "") }
     }
 
@@ -86,15 +150,27 @@ struct ModelSwitcherView: View {
     }
 
     private var subtitle: String {
-        guard models.activeID != nil else { return "No model selected" }
-        return "\(checkpointCount) checkpoint\(checkpointCount == 1 ? "" : "s") · \(state.corpusName)"
+        guard models.activeID != nil else { return String(
+            localized: "model-switcher.summary.no-model-selected",
+            defaultValue: "No model selected",
+            comment: "Summary text when no model is currently selected"
+        ) }
+        return String(format: String(
+            localized: "model-switcher.summary.checkpoints-and-corpus",
+            defaultValue: "%d checkpoint · %@",
+            comment: "Summary text showing checkpoint count and corpus name"
+        ), checkpointCount, "\(state.corpusName)")
     }
 
     // MARK: - Drop-down panel
 
     private var panel: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("MODELS")
+            Text(String(
+                localized: "model-switcher.section.models",
+                defaultValue: "MODELS",
+                comment: "Section header label for models list"
+            ))
                 .font(.caption2.weight(.bold)).foregroundStyle(.secondary)
                 .padding(.horizontal, 14).padding(.top, 12).padding(.bottom, 6)
 
@@ -109,27 +185,47 @@ struct ModelSwitcherView: View {
             Divider().padding(.vertical, 6)
 
             VStack(spacing: 2) {
-                action("New model…", icon: "plus.circle") {
+                action(String(
+                    localized: "model-switcher.actions.new-model-ellipsis",
+                    defaultValue: "New model…",
+                    comment: "Menu item label to create a new model"
+                ), icon: "plus.circle") {
                     draftName = ""
                     isOpen = false
                     isCreating = true
                 }
-                action("Rename model…", icon: "pencil") {
+                action(String(
+                    localized: "model-switcher.menu.rename-model",
+                    defaultValue: "Rename model…",
+                    comment: "Menu item to rename the selected model"
+                ), icon: "pencil") {
                     draftName = models.activeName
                     isOpen = false
                     isRenaming = true
                 }
-                action("Duplicate model", icon: "square.on.square") {
+                action(String(
+                    localized: "model-switcher.menu.duplicate-model",
+                    defaultValue: "Duplicate model",
+                    comment: "Menu item to duplicate the selected model"
+                ), icon: "square.on.square") {
                     isOpen = false
                     state.duplicateActiveModel()
                     refreshCheckpointCount()
                 }
-                action("Reveal in Finder", icon: "folder") {
+                action(String(
+                    localized: "model-switcher.menu.reveal-in-finder",
+                    defaultValue: "Reveal in Finder",
+                    comment: "Menu item to reveal selected model files in Finder"
+                ), icon: "folder") {
                     isOpen = false
                     guard let id = models.activeID else { return }
                     NSWorkspace.shared.activateFileViewerSelecting([models.directory(for: id)])
                 }
-                action("Delete model…", icon: "trash", tone: .red, enabled: models.models.count > 1) {
+                action(String(
+                    localized: "model-switcher.menu.delete-model",
+                    defaultValue: "Delete model…",
+                    comment: "Destructive menu item to delete selected model"
+                ), icon: "trash", tone: .red, enabled: models.models.count > 1) {
                     isOpen = false
                     isConfirmingDelete = true
                 }
@@ -185,7 +281,11 @@ struct ModelSwitcherView: View {
     private func rowDetail(_ workspace: ModelWorkspace) -> String {
         let count = models.checkpointCount(for: workspace.id)
         let layers = "\(workspace.gptConfig.nLayers)L · \(workspace.gptConfig.nEmbd)d"
-        return "\(count) checkpoint\(count == 1 ? "" : "s") · \(layers)"
+        return String(format: String(
+            localized: "model-switcher.summary.checkpoints-and-layers",
+            defaultValue: "%d checkpoint · %@",
+            comment: "Model summary line with checkpoint count and layer description"
+        ), count, "\(layers)")
     }
 
     private func action(_ title: String, icon: String, tone: Color = .primary, enabled: Bool = true,

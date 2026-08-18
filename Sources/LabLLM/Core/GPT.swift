@@ -31,9 +31,21 @@ struct GPTConfig: Codable, Equatable {
     /// Human validation errors surfaced before the user is allowed to train.
     var validationErrors: [String] {
         var e: [String] = []
-        if nEmbd % nHeads != 0 { e.append("Hidden dim (\(nEmbd)) must be divisible by heads (\(nHeads)).") }
-        if nLayers < 1 { e.append("Need at least 1 layer.") }
-        if blockSize < 8 { e.append("Context length is very small (< 8).") }
+        if nEmbd % nHeads != 0 { e.append(String(format: String(
+            localized: "core.gpt.validation.hidden-dim-divisible-by-heads",
+            defaultValue: "Hidden dim (%d) must be divisible by heads (%d).",
+            comment: "Validation error when hidden dimension is incompatible with head count"
+        ), nEmbd, nHeads)) }
+        if nLayers < 1 { e.append(String(
+            localized: "core.gpt.validation.minimum-layer-count",
+            defaultValue: "Need at least 1 layer.",
+            comment: "Validation error when model layer count is below minimum"
+        )) }
+        if blockSize < 8 { e.append(String(
+            localized: "core.gpt.validation.context-length-very-small",
+            defaultValue: "Context length is very small (< 8).",
+            comment: "Validation warning when context length is below recommended minimum"
+        )) }
         return e
     }
 }

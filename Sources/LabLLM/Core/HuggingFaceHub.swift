@@ -67,9 +67,17 @@ struct HFHubDataset: Identifiable, Decodable, Hashable, Sendable {
     var displayName: String { title ?? id.split(separator: "/").last.map(String.init) ?? id }
     var summary: String {
         let task = tags?.first(where: { $0.hasPrefix("task_categories:") })?.replacingOccurrences(of: "task_categories:", with: "")
-        return task?.replacingOccurrences(of: "_", with: " ").capitalized ?? "Public Hugging Face dataset"
+        return task?.replacingOccurrences(of: "_", with: " ").capitalized ?? String(
+            localized: "hugging-face.dataset.public-dataset-label",
+            defaultValue: "Public Hugging Face dataset",
+            comment: "Source label for public Hugging Face dataset entries"
+        )
     }
-    var license: String { "See dataset card" }
+    var license: String { String(
+        localized: "hugging-face.dataset.see-card-action",
+        defaultValue: "See dataset card",
+        comment: "Action text to open dataset card page"
+    ) }
 }
 
 struct HFHubFile: Identifiable, Decodable, Hashable, Sendable {
@@ -116,25 +124,89 @@ final class HFHubBrowser: ObservableObject {
             return [
                 .init(id: "roneneldan/TinyStories", title: "TinyStories 2", downloadSize: "2.24 GB", tags: ["text-generation"], preferredFileContains: "TinyStoriesV2-GPT4-train.txt"),
                 .init(id: "roneneldan/TinyStories", title: "TinyStories", downloadSize: "1.92 GB", tags: ["text-generation"], preferredFileContains: "TinyStories-train.txt"),
-                .init(id: "Salesforce/wikitext", title: "WikiText-2 Raw", downloadSize: "4.7 MB", tags: ["text-generation"]),
-                .init(id: "wikimedia/wikipedia", title: "Simple English Encyclopedia", downloadSize: "~300 MB", tags: ["text-generation"]),
-                .init(id: "wikimedia/wikipedia", title: "GoodWiki", downloadSize: "Varies by snapshot", tags: ["text-generation"]),
+                .init(id: "Salesforce/wikitext", title: String(
+                    localized: "hugging-face.dataset.wikitext-2-raw",
+                    defaultValue: "WikiText-2 Raw",
+                    comment: "Preset dataset display name"
+                ), downloadSize: "4.7 MB", tags: ["text-generation"]),
+                .init(id: "wikimedia/wikipedia", title: String(
+                    localized: "hugging-face.dataset.simple-english-encyclopedia",
+                    defaultValue: "Simple English Encyclopedia",
+                    comment: "Preset dataset display name"
+                ), downloadSize: "~300 MB", tags: ["text-generation"]),
+                .init(id: "wikimedia/wikipedia", title: String(
+                    localized: "hugging-face.dataset.goodwiki",
+                    defaultValue: "GoodWiki",
+                    comment: "Preset dataset display name"
+                ), downloadSize: String(
+                    localized: "hugging-face.dataset.goodwiki.size-varies",
+                    defaultValue: "Varies by snapshot",
+                    comment: "Dataset size note for snapshot-dependent corpus"
+                ), tags: ["text-generation"]),
                 .init(id: "karpathy/tiny_shakespeare", title: "Tiny Shakespeare", downloadSize: "1.1 MB", tags: ["text-generation"]),
-                .init(id: "ccdv/arxiv-summarization", title: "arXiv Abstracts", downloadSize: "~240 MB", tags: ["text-generation"]),
-                .init(id: "DanFosing/public-domain-poetry", title: "Public Domain Poetry", downloadSize: "94.2 MB", tags: ["text-generation"]),
+                .init(id: "ccdv/arxiv-summarization", title: String(
+                    localized: "hugging-face.dataset.arxiv-abstracts",
+                    defaultValue: "arXiv Abstracts",
+                    comment: "Preset dataset display name"
+                ), downloadSize: "~240 MB", tags: ["text-generation"]),
+                .init(id: "DanFosing/public-domain-poetry", title: String(
+                    localized: "hugging-face.dataset.public-domain-poetry",
+                    defaultValue: "Public Domain Poetry",
+                    comment: "Preset dataset display name"
+                ), downloadSize: "94.2 MB", tags: ["text-generation"]),
             ]
         case .fineTune:
             return [
-                .init(id: "HuggingFaceTB/everyday-conversations-llama3.1-2k", title: "Everyday Conversations 2k", estimatedRows: 2_260, tags: ["conversation"]),
-                .init(id: "HuggingFaceH4/no_robots", title: "No Robots", estimatedRows: 10_000, tags: ["instruction"]),
-                .init(id: "databricks/databricks-dolly-15k", title: "Dolly 15k", estimatedRows: 15_011, tags: ["instruction"]),
-                .init(id: "OpenAssistant/oasst1", title: "Open Assistant OASST1", estimatedRows: 161_443, tags: ["conversation"]),
-                .init(id: "HuggingFaceTB/smoltalk", title: "SmolTalk", estimatedRows: 1_000_000, tags: ["conversation"]),
-                .init(id: "openai/gsm8k", title: "GSM8K", estimatedRows: 8_792, tags: ["instruction", "math"]),
-                .init(id: "grammarly/coedit", title: "CoEdIT", estimatedRows: 82_000, tags: ["instruction"]),
-                .init(id: "sahil2801/CodeAlpaca-20k", title: "CodeAlpaca 20k", estimatedRows: 20_022, tags: ["instruction", "code"]),
-                .init(id: "rajpurkar/squad", title: "SQuAD", estimatedRows: 87_599, tags: ["instruction"]),
-                .init(id: "HuggingFaceH4/ultrachat_200k", title: "UltraChat 200k", estimatedRows: 207_865, tags: ["conversation"]),
+                .init(id: "HuggingFaceTB/everyday-conversations-llama3.1-2k", title: String(
+                    localized: "hugging-face.dataset.everyday-conversations-2k",
+                    defaultValue: "Everyday Conversations 2k",
+                    comment: "Preset fine-tuning dataset display name"
+                ), estimatedRows: 2_260, tags: ["conversation"]),
+                .init(id: "HuggingFaceH4/no_robots", title: String(
+                    localized: "hugging-face.dataset.no-robots",
+                    defaultValue: "No Robots",
+                    comment: "Preset fine-tuning dataset display name"
+                ), estimatedRows: 10_000, tags: ["instruction"]),
+                .init(id: "databricks/databricks-dolly-15k", title: String(
+                    localized: "hugging-face.dataset.dolly-15k",
+                    defaultValue: "Dolly 15k",
+                    comment: "Preset fine-tuning dataset display name"
+                ), estimatedRows: 15_011, tags: ["instruction"]),
+                .init(id: "OpenAssistant/oasst1", title: String(
+                    localized: "hugging-face.dataset.open-assistant-oasst1",
+                    defaultValue: "Open Assistant OASST1",
+                    comment: "Preset fine-tuning dataset display name"
+                ), estimatedRows: 161_443, tags: ["conversation"]),
+                .init(id: "HuggingFaceTB/smoltalk", title: String(
+                    localized: "hugging-face.dataset.smoltalk",
+                    defaultValue: "SmolTalk",
+                    comment: "Preset fine-tuning dataset display name"
+                ), estimatedRows: 1_000_000, tags: ["conversation"]),
+                .init(id: "openai/gsm8k", title: String(
+                    localized: "hugging-face.dataset.gsm8k",
+                    defaultValue: "GSM8K",
+                    comment: "Preset fine-tuning dataset display name"
+                ), estimatedRows: 8_792, tags: ["instruction", "math"]),
+                .init(id: "grammarly/coedit", title: String(
+                    localized: "hugging-face.dataset.coedit",
+                    defaultValue: "CoEdIT",
+                    comment: "Preset fine-tuning dataset display name"
+                ), estimatedRows: 82_000, tags: ["instruction"]),
+                .init(id: "sahil2801/CodeAlpaca-20k", title: String(
+                    localized: "hugging-face.dataset.codealpaca-20k",
+                    defaultValue: "CodeAlpaca 20k",
+                    comment: "Preset fine-tuning dataset display name"
+                ), estimatedRows: 20_022, tags: ["instruction", "code"]),
+                .init(id: "rajpurkar/squad", title: String(
+                    localized: "hugging-face.dataset.squad",
+                    defaultValue: "SQuAD",
+                    comment: "Preset fine-tuning dataset display name"
+                ), estimatedRows: 87_599, tags: ["instruction"]),
+                .init(id: "HuggingFaceH4/ultrachat_200k", title: String(
+                    localized: "hugging-face.dataset.ultrachat-200k",
+                    defaultValue: "UltraChat 200k",
+                    comment: "Preset fine-tuning dataset display name"
+                ), estimatedRows: 207_865, tags: ["conversation"]),
             ]
         }
     }
@@ -203,7 +275,11 @@ final class HFHubBrowser: ObservableObject {
         }
         Task {
             defer { isLoadingReadme = false }
-            readme = (try? await Task.detached { try await HFHubClient.readme(repo: dataset.id) }.value) ?? "No README was published for this dataset."
+            readme = (try? await Task.detached { try await HFHubClient.readme(repo: dataset.id) }.value) ?? String(
+                localized: "hugging-face.dataset.no-readme",
+                defaultValue: "No README was published for this dataset.",
+                comment: "Fallback text when dataset README is unavailable"
+            )
         }
     }
 
@@ -223,7 +299,11 @@ enum HFHubClient {
         var components = URLComponents(string: "https://huggingface.co/api/datasets")!
         components.queryItems = [URLQueryItem(name: "search", value: query), URLQueryItem(name: "limit", value: String(limit)), URLQueryItem(name: "offset", value: String(offset)), URLQueryItem(name: "full", value: "true")]
         let (data, response) = try await URLSession.shared.data(from: components.url!)
-        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else { throw ConversationImportError.network("Couldn't search Hugging Face datasets.") }
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else { throw ConversationImportError.network(String(
+            localized: "hugging-face.search.failed",
+            defaultValue: "Couldn't search Hugging Face datasets.",
+            comment: "Error text when dataset search request fails"
+        )) }
         return try JSONDecoder().decode([HFHubDataset].self, from: data)
     }
 
@@ -233,7 +313,11 @@ enum HFHubClient {
         let recursiveQuery = recursive ? "&recursive=true" : ""
         let url = URL(string: "https://huggingface.co/api/datasets/\(encoded)/tree/main\(suffix)?expand=true\(recursiveQuery)")!
         let (data, response) = try await URLSession.shared.data(from: url)
-        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else { throw ConversationImportError.network("Couldn't read the files for \(repo).") }
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else { throw ConversationImportError.network(String(format: String(
+            localized: "huggingface-hub.error.read-files-for-repo",
+            defaultValue: "Couldn't read the files for %@",
+            comment: "Network error message when listing files for a Hugging Face repository fails"
+        ), repo)) }
         return try JSONDecoder().decode([HFHubFile].self, from: data)
     }
 
@@ -273,9 +357,17 @@ enum HFHubClient {
     }
 
     static func readme(repo: String) async throws -> String {
-        guard let url = HFDownloader.url(repo: repo, filePath: "README.md") else { throw ConversationImportError.network("Invalid dataset repository.") }
+        guard let url = HFDownloader.url(repo: repo, filePath: "README.md") else { throw ConversationImportError.network(String(
+            localized: "huggingface-hub.error.invalid-dataset-repository",
+            defaultValue: "Invalid dataset repository.",
+            comment: "Error message for invalid dataset repository"
+        )) }
         let (data, response) = try await URLSession.shared.data(from: url)
-        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode), let text = String(data: data, encoding: .utf8) else { throw ConversationImportError.network("Couldn't load the dataset README.") }
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode), let text = String(data: data, encoding: .utf8) else { throw ConversationImportError.network(String(
+            localized: "huggingface-hub.error.load-dataset-readme",
+            defaultValue: "Couldn't load the dataset README.",
+            comment: "Error message when dataset README cannot be loaded"
+        )) }
         return text
     }
 
@@ -319,7 +411,11 @@ enum HFHubClient {
         components.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) }
         let (data, response) = try await URLSession.shared.data(from: components.url!)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            throw ConversationImportError.network("Hugging Face Dataset Viewer couldn't read this dataset.")
+            throw ConversationImportError.network(String(
+                localized: "huggingface-hub.error.dataset-viewer-read-failed",
+                defaultValue: "Hugging Face Dataset Viewer couldn't read this dataset.",
+                comment: "Error message when Hugging Face dataset viewer fails"
+            ))
         }
         return try JSONDecoder().decode(T.self, from: data)
     }
