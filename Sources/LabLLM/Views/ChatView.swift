@@ -3,7 +3,11 @@ import SwiftUI
 struct ChatView: View {
     @EnvironmentObject var trainer: Trainer
 
-    @State private var system = String(localized: "chat-view.default-system-prompt.helpful-assistant", defaultValue: "You are a helpful assistant. Answer clearly and concisely.", comment: "Default system prompt text for chat assistant behavior")
+    @State private var system = String(
+        localized: "chat-view.default-system-prompt.helpful-assistant",
+        defaultValue: "You are a helpful assistant. Answer clearly and concisely.",
+        comment: "Default system prompt text for chat assistant behavior"
+    )
     @State private var messages: [ChatMessage] = []
     @State private var input = ""
 
@@ -12,8 +16,16 @@ struct ChatView: View {
             header
             Divider()
             if !trainer.hasModel {
-                ContentUnavailableView(String(localized: "chat-view.empty-state.no-model-title", defaultValue: "No model to chat with yet", comment: "Title shown when no model is available for chat"), systemImage: "bubble.left.and.bubble.right",
-                    description: Text(String(localized: "chat-view.empty-state.no-model-message", defaultValue: "Pretrain a model, then fine-tune it (Training → Fine-tune) so it learns the chat format. Everything stays local.", comment: "Guidance message explaining how to prepare a model for chat")))
+                ContentUnavailableView(String(
+                    localized: "chat-view.empty-state.no-model-title",
+                    defaultValue: "No model to chat with yet",
+                    comment: "Title shown when no model is available for chat"
+                ), systemImage: "bubble.left.and.bubble.right",
+                    description: Text(String(
+                        localized: "chat-view.empty-state.no-model-message",
+                        defaultValue: "Pretrain a model, then fine-tune it (Training → Fine-tune) so it learns the chat format. Everything stays local.",
+                        comment: "Guidance message explaining how to prepare a model for chat"
+                    )))
                     .frame(maxHeight: .infinity)
             } else {
                 transcript
@@ -25,10 +37,26 @@ struct ChatView: View {
 
     private var header: some View {
         HStack {
-            WorkbenchPageHeader(eyebrow: String(localized: "chat-view.panel.playground-title", defaultValue: "Playground", comment: "Section title for the playground/chat panel"), title: String(localized: "chat-view.panel.chat-title", defaultValue: "Chat", comment: "Section title for chat conversation area"), subtitle: String(localized: "chat-view.panel.chat-description", defaultValue: "A local conversation with the model currently in memory.", comment: "Description text for chat panel purpose"), icon: "bubble.left.and.bubble.right")
+            WorkbenchPageHeader(eyebrow: String(
+                localized: "chat-view.panel.playground-title",
+                defaultValue: "Playground",
+                comment: "Section title for the playground/chat panel"
+            ), title: String(
+                localized: "chat-view.panel.chat-title",
+                defaultValue: "Chat",
+                comment: "Section title for chat conversation area"
+            ), subtitle: String(
+                localized: "chat-view.panel.chat-description",
+                defaultValue: "A local conversation with the model currently in memory.",
+                comment: "Description text for chat panel purpose"
+            ), icon: "bubble.left.and.bubble.right")
             Spacer()
             Button { messages.removeAll() } label: { Image(systemName: "square.and.pencil") }
-                .help(String(localized: "chat-view.action.new-chat", defaultValue: "New chat", comment: "Button title to start a new chat conversation"))
+                .help(String(
+                    localized: "chat-view.action.new-chat",
+                    defaultValue: "New chat",
+                    comment: "Button title to start a new chat conversation"
+                ))
                 .disabled(messages.isEmpty)
         }
         .padding(20)
@@ -55,7 +83,11 @@ struct ChatView: View {
     private var systemBubble: some View {
         HStack {
             Image(systemName: "gearshape").foregroundStyle(.secondary)
-            TextField(String(localized: "chat-view.field.system-prompt", defaultValue: "System prompt", comment: "Label for editable system prompt input"), text: $system, axis: .vertical)
+            TextField(String(
+                localized: "chat-view.field.system-prompt",
+                defaultValue: "System prompt",
+                comment: "Label for editable system prompt input"
+            ), text: $system, axis: .vertical)
                 .textFieldStyle(.plain).font(.callout).foregroundStyle(.secondary)
         }
         .padding(10)
@@ -84,7 +116,11 @@ struct ChatView: View {
 
     private var composer: some View {
         HStack(spacing: 10) {
-            TextField(String(localized: "chat-view.field.message-placeholder", defaultValue: "Message your model…", comment: "Placeholder text for chat message composer"), text: $input, axis: .vertical)
+            TextField(String(
+                localized: "chat-view.field.message-placeholder",
+                defaultValue: "Message your model…",
+                comment: "Placeholder text for chat message composer"
+            ), text: $input, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .onSubmit(send)
                 .disabled(trainer.isChatting)
