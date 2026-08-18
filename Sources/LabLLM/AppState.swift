@@ -546,16 +546,17 @@ final class AppState: ObservableObject {
             do {
                 let text = try await HFDownloader.download(repo: dataset.id, filePath: file.path) { completed, total in
                     Task { @MainActor [weak self] in
+                        let totalText = total.map(Self.formatBytes) ?? String(
+                            localized: "app-state.download.unknown-size",
+                            defaultValue: "unknown size",
+                            comment: "Fallback text when total download size is unavailable"
+                        )
                         self?.dataImport.update(completedRows: Int(min(completed, Int64(Int.max))),
                                                 detail: String(format: String(
                                                     localized: "app-state.download.progress-from-dataset",
                                                     defaultValue: "%@ of %@ from %@",
                                                     comment: "Download progress text with completed bytes, total bytes or fallback, and dataset name"
-                                                ), "\(Self.formatBytes(completed))", "\(total.map(Self.formatBytes) ?? String(
-                                                    localized: "app-state.download.unknown-size",
-                                                    defaultValue: "unknown size",
-                                                    comment: "Fallback text when total download size is unavailable"
-                                                ))", "\(dataset.displayName)"))
+                                                ), Self.formatBytes(completed), totalText, dataset.displayName))
                         self?.dataImport.totalRows = Int(min(total ?? max(completed, 1), Int64(Int.max)))
                     }
                 }
@@ -1019,16 +1020,17 @@ final class AppState: ObservableObject {
             do {
                 let text = try await HFDownloader.download(repo: dataset.id, filePath: file.path) { completed, total in
                     Task { @MainActor [weak self] in
+                        let totalText = total.map(Self.formatBytes) ?? String(
+                            localized: "app-state.finetuning-download.unknown-size",
+                            defaultValue: "unknown size",
+                            comment: "Fallback label when fine-tuning download size is unknown"
+                        )
                         self?.dataImport.update(completedRows: Int(min(completed, Int64(Int.max))),
                                                 detail: String(format: String(
                                                     localized: "app-state.finetuning-download.progress-from-dataset",
                                                     defaultValue: "%@ of %@ from %@",
                                                     comment: "Fine-tuning download progress with completed bytes, total bytes fallback, and dataset name"
-                                                ), "\(Self.formatBytes(completed))", "\(total.map(Self.formatBytes) ?? String(
-                                                    localized: "app-state.finetuning-download.unknown-size",
-                                                    defaultValue: "unknown size",
-                                                    comment: "Fallback label when fine-tuning download size is unknown"
-                                                ))", "\(dataset.displayName)"))
+                                                ), Self.formatBytes(completed), totalText, dataset.displayName))
                         self?.dataImport.totalRows = Int(min(total ?? max(completed, 1), Int64(Int.max)))
                     }
                 }
