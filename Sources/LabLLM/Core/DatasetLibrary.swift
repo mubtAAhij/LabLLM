@@ -8,7 +8,15 @@ struct InstalledDataset: Codable, Identifiable, Equatable, Hashable {
     enum Kind: String, Codable, CaseIterable, Identifiable {
         case corpus, fineTune
         var id: String { rawValue }
-        var label: String { self == .corpus ? String(localized: "dataset-library.kind.pre-training", defaultValue: "Pre-training", comment: "Label for pre-training dataset type") : String(localized: "dataset-library.kind.fine-tuning", defaultValue: "Fine-tuning", comment: "Label for fine-tuning dataset type") }
+        var label: String { self == .corpus ? String(
+            localized: "dataset-library.kind.pre-training",
+            defaultValue: "Pre-training",
+            comment: "Label for pre-training dataset type"
+        ) : String(
+            localized: "dataset-library.kind.fine-tuning",
+            defaultValue: "Fine-tuning",
+            comment: "Label for fine-tuning dataset type"
+        ) }
         var icon: String { self == .corpus ? "text.book.closed" : "tray.full" }
     }
 
@@ -28,8 +36,16 @@ struct InstalledDataset: Codable, Identifiable, Equatable, Hashable {
 
     var summary: String {
         switch kind {
-        case .corpus: return String(format: String(localized: "dataset-library.summary.characters-size", defaultValue: "%@ characters · %@", comment: "Dataset summary showing character count and formatted size"), "\(characters.formatted())", "\(formattedSize)")
-        case .fineTune: return String(format: String(localized: "dataset-library.summary.rows-pairs-size", defaultValue: "%@ rows · %@ pairs · %@", comment: "Dataset summary showing rows, pairs, and formatted size"), "\(rows.formatted())", "\(pairs.formatted())", "\(formattedSize)")
+        case .corpus: return String(format: String(
+            localized: "dataset-library.summary.characters-size",
+            defaultValue: "%@ characters · %@",
+            comment: "Dataset summary showing character count and formatted size"
+        ), "\(characters.formatted())", "\(formattedSize)")
+        case .fineTune: return String(format: String(
+            localized: "dataset-library.summary.rows-pairs-size",
+            defaultValue: "%@ rows · %@ pairs · %@",
+            comment: "Dataset summary showing rows, pairs, and formatted size"
+        ), "\(rows.formatted())", "\(pairs.formatted())", "\(formattedSize)")
         }
     }
 }
@@ -41,9 +57,21 @@ enum DatasetLibraryError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .writeFailed(let reason): return String(format: String(localized: "dataset-library.error.write-failed", defaultValue: "Couldn't save that dataset to disk: %@", comment: "Error when writing installed dataset to disk fails"), "\(reason)")
-        case .readFailed(let reason): return String(format: String(localized: "dataset-library.error.read-failed", defaultValue: "Couldn't read that installed dataset: %@", comment: "Error when reading installed dataset fails"), "\(reason)")
-        case .empty: return String(localized: "dataset-library.error.empty", defaultValue: "That dataset had no usable content, so nothing was installed.", comment: "Error when dataset has no usable content to install")
+        case .writeFailed(let reason): return String(format: String(
+            localized: "dataset-library.error.write-failed",
+            defaultValue: "Couldn't save that dataset to disk: %@",
+            comment: "Error when writing installed dataset to disk fails"
+        ), "\(reason)")
+        case .readFailed(let reason): return String(format: String(
+            localized: "dataset-library.error.read-failed",
+            defaultValue: "Couldn't read that installed dataset: %@",
+            comment: "Error when reading installed dataset fails"
+        ), "\(reason)")
+        case .empty: return String(
+            localized: "dataset-library.error.empty",
+            defaultValue: "That dataset had no usable content, so nothing was installed.",
+            comment: "Error when dataset has no usable content to install"
+        )
         }
     }
 }
@@ -159,7 +187,11 @@ final class DatasetLibrary: ObservableObject {
     /// Keeps names distinct so the training mix stays readable when the same
     /// dataset is imported twice with different row limits.
     private func uniqueName(_ proposed: String) -> String {
-        let base = proposed.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? String(localized: "dataset-library.default-name.untitled", defaultValue: "Untitled dataset", comment: "Default dataset name when proposed name is empty") : proposed
+        let base = proposed.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? String(
+            localized: "dataset-library.default-name.untitled",
+            defaultValue: "Untitled dataset",
+            comment: "Default dataset name when proposed name is empty"
+        ) : proposed
         guard datasets.contains(where: { $0.name == base }) else { return base }
         var index = 2
         while datasets.contains(where: { $0.name == "\(base) (\(index))" }) { index += 1 }
